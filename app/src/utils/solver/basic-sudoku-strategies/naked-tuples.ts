@@ -1,42 +1,51 @@
-import { Cell, intersects } from "../logic/Cell";
-import { isCellSatisfied, TableState } from "../logic/rulesets/TableState";
+import { Cell, intersects } from "../../logic/Cell";
+import { isCellSatisfied, TableState } from "../../logic/rulesets/TableState";
 
-export function nakedTuple(cell : Cell, table : TableState, t : number){
+export function nakedTuple(cell : Cell, table : TableState, t : number) : boolean{
     // STRATEGY:    By the fact each region must contain unique entries, 
     //              If the candidates for two related cells are exactly the same, then we eliminate those entries from other entries
     //              In the appropriate region.
 
     if (cell.value === 0 && cell.candidates.length <= t) {
         let candidatesList : Cell[] = [];
+
+
         for (let r = 0; r < cell.regions.length; r++) {
-            candidatesList = [];
+            candidatesList = [];        
             candidatesList.push(cell);
+            let empty = 0;
 
             for (let c = 0; c < cell.regions[r].length; c++) {
                 const other = cell.regions[r][c];
                 if (intersects(cell, other)){
                     candidatesList.push(other);
                 }
+                if (other.value === 0) 
+                    empty++;
             }
 
             candidatesList = pruneNonTuple(candidatesList, t);
 
-            if (formsTuple(candidatesList)) {
+            if (formsTuple(candidatesList) && candidatesList.length !== empty) {
                 for (let c = 0; c < cell.regions[r].length ; c++) {
                     const other = cell.regions[r][c];
                     if (!candidatesList.includes(other)) {
                         eliminateCandidates(other, getRunningList(candidatesList));
                     }
                 }
-                if (t <= 4)
+                if (t <= 4) {
                     console.log("[Naked %d-tuple] found in region via cell r%d c%d", t, cell.row, cell.column);
-                else 
+                }
+                else  {
                     console.log("[Hidden %d-tuple] found in region via cell r%d c%d", 9 - t, cell.row, cell.column);
+                }
             }
         }
-        return;
+        return true;
         
     }
+
+    return false;
 }
 
 
@@ -70,7 +79,7 @@ export function pruneNonTuple(cells : Cell[], n : number) : Cell[] {
                 power -= 1;
             }
         }
-        if (tuple.length === n && getRunningList(tuple).length === 3 ){
+        if (tuple.length === n && getRunningList(tuple).length === n ){
             break;
         }
         tuple = [];
@@ -106,6 +115,6 @@ export function getRunningList(cells : Cell[]){
 export function formsTuple(cells : Cell[]) : boolean{
     if (cells.length === 0)
         return false;
-        
+
     return getRunningList(cells).length === cells.length;
 }

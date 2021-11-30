@@ -1,5 +1,5 @@
-import {isCellSatisfied } from "../logic/rulesets/TableState";
-import { Cell } from "../logic/Cell";
+import {isCellSatisfied } from "../../logic/rulesets/TableState";
+import { Cell } from "../../logic/Cell";
 
 
 export default function candidateElimination(cell : Cell)  {

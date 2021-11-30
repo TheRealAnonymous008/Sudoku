@@ -23,3 +23,66 @@ export function intersects (c : Cell, o : Cell) : boolean {
     }
     return false;
 }
+
+export function getRegionIntersection (r : Cell[], s : Cell[]) : Cell[] {
+    const result  : Cell[] = [];
+    for (let i = 0; i < r.length; i ++) {
+        if (s.includes(r[i]))
+            result.push(r[i]);
+    }
+
+    return result;
+}
+
+export function getRegionDifference (r : Cell[], s : Cell[]) : Cell[] {
+    const result  : Cell[] = [];
+
+    for (let i = 0; i < r.length; i ++) {
+        if (!s.includes(r[i]))
+            result.push(r[i]);
+    }
+
+    return result;
+}
+
+export function regionHasCandidate (r : Cell[], n : number) : boolean {
+    let result = false;
+    for (let i = 0; i < r.length; i ++) {
+        if (r[i].candidates.includes(n) && r[i].value === 0) {
+            result = true;
+        }
+        if (r[i].value === n) {
+            return false;
+        }
+    }
+
+    return result;
+}
+
+export function regionHasValue (r : Cell[], n : number) : boolean {
+    for (let i = 0; i < r.length; i ++) {
+        if (r[i].value === n) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+export function regionEliminateCandidate(r : Cell[], n : number) : boolean{
+    const s : Cell[]= [];
+    for (let i = 0; i < r.length; i ++) {
+        if (r[i].candidates.includes(n) && r[i].value === 0) {
+            s.push(r[i]);
+        }
+        if (r[i].value === n) {
+            return false;
+        }
+    }
+    
+    for (let i = 0; i < s.length; i++) {
+        s[i].candidates = s[i].candidates.filter ( (value : number) => {return value !== n} );
+    }
+
+    return true;
+}

@@ -4,12 +4,36 @@ import { Rule } from "../Rule";
 import { TableState } from "./TableState";
 
 export default function applyNormalRules(table : TableState) {
+    // Apply row rules
     for (let i = 0; i < table.cells.length; i++) {
-        for (let j = 0; j < table.cells[0].length; j++ ) {
-            applyRowRule(table.cells[i][j], table);
-            applyColumnRule(table.cells[i][j], table);
+        const region  : Cell[] = []
+        for (let k = 0; k < table.cells[i].length; k++) {
+            region.push(table.cells[i][k]);
         }
+
+        for (let k = 0 ; k < 9; k ++) {
+            applyRegionRule(region[k], table, region)
+            region[k].regions.push(region);
+        }
+
+        table.regions.push(region);
     }
+
+    // Apply column rules
+    for (let i = 0; i < table.cells[0].length; i++) {
+        const region  : Cell[] = []
+        for (let k = 0; k < table.cells.length; k++) {
+            region.push(table.cells[k][i]);
+        }
+
+        for (let k = 0 ; k < 9; k ++) {
+            applyRegionRule(region[k], table, region)
+            region[k].regions.push(region);
+        }
+
+        table.regions.push(region);
+    }
+
 
     // Apply box rules
     for (let i = 1; i < table.cells.length; i+=3) {
@@ -27,79 +51,17 @@ export default function applyNormalRules(table : TableState) {
             ];
 
             for (let k = 0 ; k < 9; k ++) {
-                applyBoxRule(region[k], table, region)
+                applyRegionRule(region[k], table, region)
                 region[k].regions.push(region);
             }
+
+            table.regions.push(region);
         }
     }
 
 }
 
-export function applyRowRule(cell : Cell, table : TableState) {
-    // RULE: This cell's entry must be the only one in its row.
-    const rule = {
-        cell : cell, 
-        table : table,
-        isValid : (() => {
-            if (cell.value === 0)
-                return false;
-
-            for (let j = 0; j  <9 ; j++) {
-                const other = table.cells[cell.row - 1][j].value;
-                if (j !== cell.column - 1) {
-                    if (other === cell.value)
-                        return false;
-                }
-            }
-            return true;
-        })
-    }
-    cell.rules.push(rule);
-
-    // Add a row region
-    const region = [];
-
-    for (let j = 0; j < 9; j++) {
-        const other = table.cells[cell.row - 1][j];
-        region.push(other);
-    }
-
-    cell.regions.push(region);
-}
-
-export function applyColumnRule(cell : Cell, table : TableState) {
-    // RULE : This cell's entry must be the only one in its column
-    const rule = {
-        cell : cell, 
-        table : table,
-        isValid : (() => {
-            if (cell.value === 0)
-                return false;
-
-            for (let i = 0; i  <9 ; i++) {
-                const other = table.cells[i][cell.column - 1].value;
-                if (i !== cell.row - 1) {
-                    if (other === cell.value)
-                        return false;
-                }
-            }
-
-            return true;
-        })
-    }
-    
-    cell.rules.push(rule);
-
-    const region = [];
-    for (let i = 0; i< 9; i++) {
-        const other = table.cells[i][cell.column - 1];
-        region.push(other);
-    }
-
-    cell.regions.push(region);
-}
-
-export function applyBoxRule(cell : Cell, table : TableState, region : Cell[]) {
+export function applyRegionRule(cell : Cell, table : TableState, region : Cell[]) {
     // RULE : This cell's entry must be the only one in its box
     const rule = {
         cell : cell, 
