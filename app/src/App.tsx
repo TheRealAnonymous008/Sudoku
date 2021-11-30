@@ -13,6 +13,7 @@ function App() {
     setStep(step() + 1);
     const newTable = solve(table());
     duplicate();
+    console.log("Step %d", step());
   }
 
   function duplicate(){

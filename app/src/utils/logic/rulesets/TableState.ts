@@ -21,11 +21,11 @@ export function generateTable () : TableState{
             temp.push ({
                 row: i + 1,
                 column : j + 1, 
-                box : i,
                 value : 0,
                 isGiven : false,
                 candidates : [1, 2, 3, 4, 5, 6, 7, 8, 9],
-                rules : []
+                rules : [],
+                regions : []
             })
         }
         cells.push(temp);
@@ -65,15 +65,19 @@ export function isTableSatisfied (table : TableState) : boolean {
 }
 
 export function initializeTable(table : TableState) : TableState{
-    let grid = [ [8, 2, 7, 1, 5, 4, 3, 9, 6],
-                 [9, 6, 5, 3, 2, 7, 1, 4, 8],
-                 [3, 4, 1, 6, 8, 9, 7, 5, 2],
-                 [5, 9, 3, 4, 6, 8, 2, 7, 1],
-                 [4, 7, 2, 5, 0, 3, 6, 8, 9],
-                 [6, 1, 8, 9, 7, 2, 4, 3, 5], 
-                 [7, 8, 6, 0, 0, 0, 9, 1, 4], 
-                 [1, 5, 4, 0, 0, 0, 8, 2, 0],
-                 [2, 3, 9, 0, 0, 0, 5, 6, 0]]
+    let basic = [   [2, 0, 0,   0, 1, 0,   0, 0, 0],
+                    [6, 0, 0,   8, 0, 0,   0, 0, 9],
+                    [3, 0, 0,   6, 0, 7,   0, 5, 4],
+
+                    [0, 0, 0,   0, 5, 6,   0, 0, 0],
+                    [0, 4, 0,   0, 8, 0,   0, 6, 0],
+                    [0, 0, 0,   4, 7, 0,   0, 0, 0], 
+
+                    [7, 3, 0,   1, 0, 4,   0, 8, 5], 
+                    [9, 0, 0,   0, 0, 5,   0, 0, 1],
+                    [0, 0, 0,   0, 2, 0,   0, 0, 7]]
+
+    let grid = basic;
 
     for (let i = 0; i < 9; i ++) {
         for (let j = 0; j < 9; j++) {

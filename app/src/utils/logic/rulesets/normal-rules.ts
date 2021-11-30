@@ -26,8 +26,10 @@ export default function applyNormalRules(table : TableState) {
                 table.cells[i + 1][j + 1],
             ];
 
-            for (let k = 0 ; k < 9; k ++)
+            for (let k = 0 ; k < 9; k ++) {
                 applyBoxRule(region[k], table, region)
+                region[k].regions.push(region);
+            }
         }
     }
 
@@ -53,6 +55,16 @@ export function applyRowRule(cell : Cell, table : TableState) {
         })
     }
     cell.rules.push(rule);
+
+    // Add a row region
+    const region = [];
+
+    for (let j = 0; j < 9; j++) {
+        const other = table.cells[cell.row - 1][j];
+        region.push(other);
+    }
+
+    cell.regions.push(region);
 }
 
 export function applyColumnRule(cell : Cell, table : TableState) {
@@ -77,6 +89,14 @@ export function applyColumnRule(cell : Cell, table : TableState) {
     }
     
     cell.rules.push(rule);
+
+    const region = [];
+    for (let i = 0; i< 9; i++) {
+        const other = table.cells[i][cell.column - 1];
+        region.push(other);
+    }
+
+    cell.regions.push(region);
 }
 
 export function applyBoxRule(cell : Cell, table : TableState, region : Cell[]) {
