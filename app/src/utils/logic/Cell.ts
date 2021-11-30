@@ -24,6 +24,22 @@ export function intersects (c : Cell, o : Cell) : boolean {
     return false;
 }
 
+export function getRegionUnion (r : Cell[], s: Cell[]) : Cell[] {
+    const result : Cell[] = [];
+    
+    for (let i = 0; i < s.length; i++) {
+        result.push(s[i]);
+    }
+
+    for (let i = 0; i < r.length; i++) {
+        if (!s.includes(r[i])) {
+            result.push(r[i]);
+        }
+    }
+
+    return result;
+}
+
 export function getRegionIntersection (r : Cell[], s : Cell[]) : Cell[] {
     const result  : Cell[] = [];
     for (let i = 0; i < r.length; i ++) {

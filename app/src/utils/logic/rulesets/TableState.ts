@@ -66,6 +66,29 @@ export function isTableSatisfied (table : TableState) : boolean {
     return true;
 }
 
+export function getEmpty (table : TableState) : Cell[] {
+    const result : Cell[] = [];
+    for (let i = 0; i < table.cells.length ; i ++) {
+        for (let j = 0; j < table.cells[0].length; j++) {
+            if (table.cells[i][j].value !== 0)
+                result.push(table.cells[i][j]);
+        }
+    }
+
+    return result;
+}
+
+export function getAll (table : TableState) : Cell[] {
+    const result : Cell[] = [];
+    for (let i = 0; i < table.cells.length ; i ++) {
+        for (let j = 0; j < table.cells[0].length; j++) {
+            result.push(table.cells[i][j]);
+        }
+    }
+
+    return result;
+}
+
 export function initializeTable(table : TableState) : TableState{
 
     let empty = [   [0, 0, 0,   0, 0, 0,   0, 0, 0],
@@ -116,7 +139,19 @@ export function initializeTable(table : TableState) : TableState{
                     [0, 8, 0,   0, 0, 2,   9, 3, 6],
                     [9, 2, 4,   6, 0, 0,   5, 1, 0]]
 
-    let grid = g3;
+    let g4 =     [  [0, 2, 0,   0, 0, 0,   0, 9, 4],
+                    [7, 6, 0,   9, 1, 0,   0, 5, 0],
+                    [0, 9, 0,   0, 0, 2,   0, 8, 1],
+
+                    [0, 7, 0,   0, 5, 0,   0, 1, 0],
+                    [0, 0, 0,   7, 0, 9,   0, 0, 0],
+                    [0, 8, 0,   0, 3, 1,   0, 6, 7], 
+
+                    [2, 4, 0,   1, 0, 0,   0, 7, 0], 
+                    [0, 1, 0,   0, 9, 0,   0, 4, 5],
+                    [9, 0, 0,   0, 0, 0,   1, 0, 0]]
+
+    let grid = g4;
 
     for (let i = 0; i < 9; i ++) {
         for (let j = 0; j < 9; j++) {

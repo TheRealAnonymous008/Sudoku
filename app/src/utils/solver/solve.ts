@@ -5,6 +5,7 @@ import { hiddenTuple } from "./basic-sudoku-strategies/hidden-tuple";
 import intersectionRemoval from "./basic-sudoku-strategies/intersection-removal";
 import {nakedTuple} from "./basic-sudoku-strategies/naked-tuples";
 import single from "./basic-sudoku-strategies/singles";
+import XWing from "./chaining_sudoku_strategies/x-wings";
 
 export default function solve(table : TableState) : TableState {
     
@@ -26,6 +27,7 @@ export default function solve(table : TableState) : TableState {
     // Candidate based elimination
     for (let candidate = 1; candidate <= 9; candidate ++) {
         intersectionRemoval(table, candidate);
+        XWing(table, candidate);
     }
 
     for (let i = 0; i < table.cells.length; i ++) {
