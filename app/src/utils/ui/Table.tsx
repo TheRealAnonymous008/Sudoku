@@ -1,19 +1,14 @@
-import { createEffect, createSignal, For , Switch, Match} from "solid-js";
+import { createEffect, createSignal, For , Switch, Match, createRenderEffect, createComputed} from "solid-js";
 import { Cell } from "../logic/Cell";
-import { TableState } from "../logic/rulesets/TableState";
+import { generateTable, TableState } from "../logic/rulesets/TableState";
 import composeClassnames from "./compose-classnames";
 
 
-export const Table = (props : TableState) => {
-    const [table, setTable] = createSignal<TableState>();
-
-    createEffect( () => {
-        setTable(props);
-    })
+export const Table = (table : TableState) => {
     return (
         <table class = "table-auto-mt-2 border-collapse">
           <tbody>
-             <For each = {table()?.cells}>
+             <For each = {table.cells}>
                 {
                   (row : Cell[]) => (
                      <tr>
@@ -29,9 +24,22 @@ export const Table = (props : TableState) => {
                                 cell.row === 9 ? "border-b-8" : "")}>
                               <div class = "h-16 w-16">
                               <Switch> 
-                                    <Match when={cell.value === 0}> </Match>
+                                    <Match when={cell.value === 0}> 
+                                        <div class = "grid grid-flow-rows grid-cols-3 grid-rows-3">
+                                          <div> {cell.candidates.includes(1) ? 1 : ''} </div>
+                                          <div> {cell.candidates.includes(2) ? 2 : ''} </div>
+                                          <div> {cell.candidates.includes(3) ? 3 : ''} </div>
+                                          <div> {cell.candidates.includes(4) ? 4 : ''} </div>
+                                          <div> {cell.candidates.includes(5) ? 5 : ''} </div>
+                                          <div> {cell.candidates.includes(6) ? 6 : ''} </div>
+                                          <div> {cell.candidates.includes(7) ? 7 : ''} </div>
+                                          <div> {cell.candidates.includes(8) ? 8 : ''} </div>
+                                          <div> {cell.candidates.includes(9) ? 9 : ''} </div>
+                                        </div>
+                                    </Match>
                                     <Match when={cell.value !== 0}> 
-                                        <div class = "text-center align-middle text-3xl leading-loose">
+                                        <div class = {composeClassnames("font-bold text-center align-middle text-4xl leading-loose",
+                                            cell.isGiven ? "text-black": "text-blue-500")}>
                                             {cell.value}
                                         </div>
                                     </Match>

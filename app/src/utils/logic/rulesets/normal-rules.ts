@@ -1,58 +1,104 @@
+import { table } from "console";
+import { Cell } from "../Cell";
 import { Rule } from "../Rule";
 import { TableState } from "./TableState";
 
 export default function applyNormalRules(table : TableState) {
-    const rule : Rule = {
-        table : table, 
-        isValid: (() => 
-        { 
-            // Check rows for complete entries
-            for(let i = 0; i < 9; i ++) {
-                const rowSet = [];
-                for (let j = 0; j  <9 ; j++) {
-                    rowSet.push(table.cells[i][j].value)
-                }
-                
-                for (let j = 1; j <= 9; j++) {
-                    if(!rowSet.includes(j))
+    for (let i = 0; i < table.cells.length; i++) {
+        for (let j = 0; j < table.cells[0].length; j++ ) {
+            applyRowRule(table.cells[i][j], table);
+            applyColumnRule(table.cells[i][j], table);
+        }
+    }
+
+    // Apply box rules
+    for (let i = 1; i < table.cells.length; i+=3) {
+        for (let j = 1; j < table.cells[0].length; j+=3 ) {
+            const region = [
+                table.cells[i - 1][j - 1],
+                table.cells[i - 1][j],
+                table.cells[i - 1][j + 1],
+                table.cells[i][j - 1],
+                table.cells[i][j],
+                table.cells[i][j + 1],
+                table.cells[i + 1][j - 1],
+                table.cells[i + 1][j],
+                table.cells[i + 1][j + 1],
+            ];
+
+            for (let k = 0 ; k < 9; k ++)
+                applyBoxRule(region[k], table, region)
+        }
+    }
+
+}
+
+export function applyRowRule(cell : Cell, table : TableState) {
+    // RULE: This cell's entry must be the only one in its row.
+    const rule = {
+        cell : cell, 
+        table : table,
+        isValid : (() => {
+            if (cell.value === 0)
+                return false;
+
+            for (let j = 0; j  <9 ; j++) {
+                const other = table.cells[cell.row - 1][j].value;
+                if (j !== cell.column - 1) {
+                    if (other === cell.value)
                         return false;
                 }
             }
+            return true;
+        })
+    }
+    cell.rules.push(rule);
+}
 
-            // Check columns for complete entries
-            for(let i = 0; i < 9; i ++) {
-                const colSet = [];
-                for (let j = 0; j  <9 ; j++) {
-                    colSet.push(table.cells[j][i].value)
-                }
-                
-                for (let j = 1; j <= 9; j++) {
-                    if(!colSet.includes(j))
+export function applyColumnRule(cell : Cell, table : TableState) {
+    // RULE : This cell's entry must be the only one in its column
+    const rule = {
+        cell : cell, 
+        table : table,
+        isValid : (() => {
+            if (cell.value === 0)
+                return false;
+
+            for (let i = 0; i  <9 ; i++) {
+                const other = table.cells[i][cell.column - 1].value;
+                if (i !== cell.row - 1) {
+                    if (other === cell.value)
                         return false;
-                }
-            }
-
-            // Check boxes for complete entries
-            for(let i = 1; i < 9; i +=3) {
-                for (let j = 1 ; j < 9; j += 3) {
-                    const boxset = []
-
-                    for (let x = -1; x <= 1; x ++) {
-                        for (let y = -1; y <= 1; y++) {
-                            boxset.push(table.cells[i + x][j + y].value);
-                        }
-                    }
-
-                    for (let j = 1; j <= 9; j++) {
-                        if(!boxset.includes(j))
-                            return false;
-                    }
                 }
             }
 
             return true;
         })
     }
+    
+    cell.rules.push(rule);
+}
 
-    table.rules.push(rule);
+export function applyBoxRule(cell : Cell, table : TableState, region : Cell[]) {
+    // RULE : This cell's entry must be the only one in its box
+    const rule = {
+        cell : cell, 
+        table : table,
+        isValid : (() => {
+            if (cell.value === 0)
+                return false;
+
+            for (let i = 0; i < region.length; i++) {
+                const other = region[i].value;
+                if (! (region[i].row === cell.row && region[i].column === cell.column)) {
+                    if (other === cell.value)
+                        return false;
+                }
+            }
+
+            return true;
+        })
+    }
+    
+    cell.rules.push(rule);
 }
