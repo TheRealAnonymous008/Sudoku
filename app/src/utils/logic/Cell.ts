@@ -57,18 +57,18 @@ export function getRegionDifference (r : Cell[], s : Cell[]) : Cell[] {
         if (!s.includes(r[i]))
             result.push(r[i]);
     }
-
+    
     return result;
 }
 
-export function regionHasCandidate (r : Cell[], n : number) : boolean {
-    let result = false;
+export function getElementsWithCandidate (r : Cell[], n : number) : Cell[] {
+    let result  : Cell[] = [];
     for (let i = 0; i < r.length; i ++) {
         if (r[i].candidates.includes(n) && r[i].value === 0) {
-            result = true;
+            result.push(r[i]);
         }
         if (r[i].value === n) {
-            return false;
+            return [];
         }
     }
 
@@ -101,4 +101,25 @@ export function regionEliminateCandidate(r : Cell[], n : number) : boolean{
     }
 
     return true;
+}
+
+export function isNeighbors(c : Cell, d : Cell) : boolean{
+    let rneighbor : boolean = false;
+    let sneighbor : boolean = false;
+
+    for (let i = 0; i < c.regions.length; i ++) {
+        if (c.regions[i].includes(d)) {
+            rneighbor = true;
+            break;
+        }
+    }
+
+    for (let i = 0; i < d.regions.length; i ++) {
+        if (d.regions[i].includes(c)) {
+            sneighbor = true;
+            break;
+        }
+    }
+
+    return (rneighbor && sneighbor);
 }

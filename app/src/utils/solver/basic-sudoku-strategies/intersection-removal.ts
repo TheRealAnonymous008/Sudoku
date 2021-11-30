@@ -1,4 +1,4 @@
-import { Cell, getRegionDifference, getRegionIntersection, regionEliminateCandidate, regionHasCandidate, regionHasValue } from "../../logic/Cell";
+import { Cell, getRegionDifference, getRegionIntersection, regionEliminateCandidate, getElementsWithCandidate, regionHasValue } from "../../logic/Cell";
 import { TableState } from "../../logic/rulesets/TableState";
 
 export default function intersectionRemoval (table : TableState, n : number) : boolean {
@@ -38,8 +38,8 @@ export function regionElimination(R : Cell[], S : Cell[], n : number)  : boolean
     const Rprime = getRegionDifference(R, A);
     const Sprime = getRegionDifference(S, A);
 
-    let isInR : boolean = regionHasCandidate(Rprime, n);
-    let isInS : boolean = regionHasCandidate(Sprime, n);
+    let isInR : boolean = (getElementsWithCandidate(Rprime, n).length !== 0);
+    let isInS : boolean = (getElementsWithCandidate(Sprime, n).length !== 0);
 
     if ((isInR && !isInS) || (!isInR && isInS)) {
         let result : boolean;

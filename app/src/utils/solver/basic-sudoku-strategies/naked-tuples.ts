@@ -79,7 +79,7 @@ export function pruneNonTuple(cells : Cell[], n : number) : Cell[] {
                 power -= 1;
             }
         }
-        if (tuple.length === n && getRunningList(tuple).length === n ){
+        if (tuple.length === n && getRunningList(tuple).size === n ){
             break;
         }
         tuple = [];
@@ -94,19 +94,18 @@ export function pruneNonTuple(cells : Cell[], n : number) : Cell[] {
     return cells;
 }
 
-export function eliminateCandidates(cell : Cell, candidates : number[]) {
+export function eliminateCandidates(cell : Cell, candidates : Set<number>) {
     cell.candidates = cell.candidates.filter((val :number) => (
-        !candidates.includes(val)
+        !candidates.has(val)
     ));
 }
 
 export function getRunningList(cells : Cell[]){
-    const runningList : number[] = [];
+    const runningList : Set<number> = new Set<number>();
 
     for (let c = 0; c < cells.length; c++) {
         for (let x = 0; x < cells[c].candidates.length; x++) {
-            if(! (runningList.includes(cells[c].candidates[x])))
-            runningList.push(cells[c].candidates[x]);
+            runningList.add(cells[c].candidates[x]);
         }
     }
     return runningList;
@@ -116,5 +115,5 @@ export function formsTuple(cells : Cell[]) : boolean{
     if (cells.length === 0)
         return false;
 
-    return getRunningList(cells).length === cells.length;
+    return getRunningList(cells).size === cells.length;
 }
