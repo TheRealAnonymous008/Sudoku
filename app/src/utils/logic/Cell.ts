@@ -1,5 +1,4 @@
 import { Rule } from "./Rule";
-
 export interface Cell {
     row : number,
     column : number,
@@ -91,9 +90,6 @@ export function regionEliminateCandidate(r : Cell[], n : number) : boolean{
         if (r[i].candidates.includes(n) && r[i].value === 0) {
             s.push(r[i]);
         }
-        if (r[i].value === n) {
-            return false;
-        }
     }
     
     for (let i = 0; i < s.length; i++) {
@@ -106,6 +102,9 @@ export function regionEliminateCandidate(r : Cell[], n : number) : boolean{
 export function isNeighbors(c : Cell, d : Cell) : boolean{
     let rneighbor : boolean = false;
     let sneighbor : boolean = false;
+
+    if (c.row === d.row && c.column === d.column)
+        return false;
 
     for (let i = 0; i < c.regions.length; i ++) {
         if (c.regions[i].includes(d)) {
@@ -123,3 +122,14 @@ export function isNeighbors(c : Cell, d : Cell) : boolean{
 
     return (rneighbor && sneighbor);
 }
+
+export function isDisjoint (region : Cell[]) : boolean {
+    for (let i = 0; i < region.length ; i++) {
+        for (let j = i + 1 ; j < region.length; j++) {
+            if (isNeighbors(region[i], region[j]))
+                return false;
+        }
+    }
+    
+    return true;
+} 

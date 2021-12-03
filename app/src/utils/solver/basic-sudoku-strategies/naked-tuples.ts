@@ -1,13 +1,19 @@
 import { Cell, intersects } from "../../logic/Cell";
+import { Deduction } from "../../logic/Deduction";
 import { isCellSatisfied, TableState } from "../../logic/rulesets/TableState";
 
-export function nakedTuple(cell : Cell, table : TableState, t : number) : boolean{
+export function nakedTuple(cell : Cell, table : TableState, t : number) : Deduction{
     // STRATEGY:    By the fact each region must contain unique entries, 
     //              If the candidates for two related cells are exactly the same, then we eliminate those entries from other entries
     //              In the appropriate region.
+    let deduction : Deduction  = {
+        cause : [],
+        effect : []
+    }
 
     if (cell.value === 0 && cell.candidates.length <= t) {
         let candidatesList : Cell[] = [];
+        let success = false;
 
 
         for (let r = 0; r < cell.regions.length; r++) {
@@ -29,23 +35,23 @@ export function nakedTuple(cell : Cell, table : TableState, t : number) : boolea
             if (formsTuple(candidatesList) && candidatesList.length !== empty) {
                 for (let c = 0; c < cell.regions[r].length ; c++) {
                     const other = cell.regions[r][c];
-                    if (!candidatesList.includes(other)) {
+                    if (!candidatesList.includes(other) && other.value ===0) {
+                        const length = other.candidates.length;
                         eliminateCandidates(other, getRunningList(candidatesList));
+                        if (length !== other.candidates.length) {
+                            success = true;
+                            deduction.effect.push(other);
+                        }
                     }
-                }
-                if (t <= 4) {
-                    console.log("[Naked %d-tuple] found in region via cell r%d c%d", t, cell.row, cell.column);
-                }
-                else  {
-                    console.log("[Hidden %d-tuple] found in region via cell r%d c%d", 9 - t, cell.row, cell.column);
                 }
             }
         }
-        return true;
-        
+        if (success){
+            deduction.cause = candidatesList;
+        }
     }
 
-    return false;
+    return deduction;
 }
 
 
@@ -95,6 +101,9 @@ export function pruneNonTuple(cells : Cell[], n : number) : Cell[] {
 }
 
 export function eliminateCandidates(cell : Cell, candidates : Set<number>) {
+    if (cell.value !== 0)
+        return;
+        
     cell.candidates = cell.candidates.filter((val :number) => (
         !candidates.has(val)
     ));

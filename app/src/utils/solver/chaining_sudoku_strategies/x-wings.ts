@@ -1,9 +1,10 @@
 import cartesianProduct from "../../logic/cartesian-product";
 import { Cell, getRegionUnion } from "../../logic/Cell";
-import { getAll, TableState } from "../../logic/rulesets/TableState";
+import { Deduction } from "../../logic/Deduction";
+import { getAll, getEmpty, TableState } from "../../logic/rulesets/TableState";
 import { regionElimination } from "../basic-sudoku-strategies/intersection-removal";
 
-export default function XWing(table : TableState, n : number) : boolean {
+export default function XWing(table : TableState, n : number) : Deduction{
     //  STRATEGY:           Select four tiles, such that they form a rectangle, as shown in the configuration below
     //                      ...   A  ...  B ... 
     //                      ...   C  ...  D ...
@@ -17,7 +18,10 @@ export default function XWing(table : TableState, n : number) : boolean {
 
     const blankCells = getAll(table);
     const matrix = cartesianProduct<Cell>(blankCells, blankCells);
-    let fresult = false;
+    let result : Deduction = {
+        cause : [],
+        effect : []
+    }
 
     for (let i = 0 ; i < matrix.length; i ++) {
         const [x, y] = matrix[i];
@@ -25,13 +29,11 @@ export default function XWing(table : TableState, n : number) : boolean {
             const R = getRegionUnion(x.regions[0], y.regions[0]);
             const C = getRegionUnion(x.regions[1], y.regions[1]);
 
-           const result = regionElimination(R, C, n);
-            if (result) {
-                fresult = true;
-                console.log ('[Classic X-Wing] found at r%d c%d and r%d c%d for value %d', x.row, x.column, y.row, y.column, n);
-            }
+            result = regionElimination(R, C, n);
+            if (result.effect.length !== 0)
+                return result;
         }
     }
 
-    return fresult;
+    return result;
 }

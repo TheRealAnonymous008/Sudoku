@@ -1,7 +1,8 @@
 import { Cell, getRegionDifference, getRegionIntersection, regionEliminateCandidate, getElementsWithCandidate, regionHasValue } from "../../logic/Cell";
+import { Deduction } from "../../logic/Deduction";
 import { TableState } from "../../logic/rulesets/TableState";
 
-export default function intersectionRemoval (table : TableState, n : number) : boolean {
+export default function intersectionRemoval (table : TableState, n : number) : Deduction{
 
     // STRATEGY:        We consider the subregions (regions of more than one element)  that are formed from the intersection of regions 
     //                  R, S := the two regions as input
@@ -12,27 +13,31 @@ export default function intersectionRemoval (table : TableState, n : number) : b
     
     //                  This stems from the fact that if it appears in subregion T, the other region will have no place to put the candidate.
 
-    let success = false;
+    let c : Deduction = {
+        cause : [],
+        effect : []
+    };
 
     for (let r = 0; r < table.regions.length; r++) {
         for (let s = r + 1; s < table.regions.length; s++) {
             const R = table.regions[r];
             const S = table.regions[s];
             
-            const result = regionElimination(R, S, n);
-            if (result)
-                console.log ("[Intersection Elimination] on %d", n);
+            c = regionElimination(R, S, n);
         }
     }
-
-    return success;
+    return c;
 }
 
-export function regionElimination(R : Cell[], S : Cell[], n : number)  : boolean{
+export function regionElimination(R : Cell[], S : Cell[], n : number)  : Deduction{
     const A = getRegionIntersection(R, S);
+    let deduction : Deduction = {
+        cause : [],
+        effect : []
+    };
 
     if (A.length <= 1 || regionHasValue(R, n) || regionHasValue(S, n)) {
-        return false;
+        return deduction;
     }
 
     const Rprime = getRegionDifference(R, A);
@@ -44,15 +49,21 @@ export function regionElimination(R : Cell[], S : Cell[], n : number)  : boolean
     if ((isInR && !isInS) || (!isInR && isInS)) {
         let result : boolean;
         // Eliminate all instances of the candidate from T.
-        if (isInR)
+        if (isInR) {
             result  = regionEliminateCandidate(Rprime, n);
-        else 
-            result = regionEliminateCandidate(Sprime, n);
-        
-        if (result) {
-            return true;
+            deduction.effect = deduction.effect.concat(Rprime);
         }
+        else {
+            result =  regionEliminateCandidate(Sprime, n);
+            deduction.effect = deduction.effect.concat(Sprime);
+        }
+        
+       deduction.cause = deduction.cause.concat(A);
+
+       if (result) {
+           return deduction;
+       }
     }
 
-    return false;
+    return deduction;
 }

@@ -7,13 +7,13 @@ import solve from './utils/solver/solve';
 
 function App() {
   const [table, setTable] = createSignal<TableState>(generateTable());
-  const [step, setStep] = createSignal(1);
+  const [step, setStep] = createSignal(0);
 
   function onNextStep() {
     setStep(step() + 1);
+    console.log("Step %d", step());
     const newTable = solve(table());
     duplicate();
-    console.log("Step %d", step());
   }
 
   function duplicate(){
