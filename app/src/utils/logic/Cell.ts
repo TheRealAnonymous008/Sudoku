@@ -74,6 +74,8 @@ export function getElementsWithCandidate (r : Cell[], n : number) : Cell[] {
     return result;
 }
 
+
+
 export function regionHasValue (r : Cell[], n : number) : boolean {
     for (let i = 0; i < r.length; i ++) {
         if (r[i].value === n) {
@@ -99,34 +101,25 @@ export function regionEliminateCandidate(r : Cell[], n : number) : boolean{
     return true;
 }
 
-export function isNeighbors(c : Cell, d : Cell) : boolean{
-    let rneighbor : boolean = false;
-    let sneighbor : boolean = false;
+export function isNeighbors(c : Cell, d : Cell) : number{
+    let rneighbor : number = 0;
 
     if (c.row === d.row && c.column === d.column)
-        return false;
+        return 0;
 
     for (let i = 0; i < c.regions.length; i ++) {
         if (c.regions[i].includes(d)) {
-            rneighbor = true;
-            break;
+            rneighbor ++
         }
     }
 
-    for (let i = 0; i < d.regions.length; i ++) {
-        if (d.regions[i].includes(c)) {
-            sneighbor = true;
-            break;
-        }
-    }
-
-    return (rneighbor && sneighbor);
+    return rneighbor;
 }
 
 export function isDisjoint (region : Cell[]) : boolean {
     for (let i = 0; i < region.length ; i++) {
         for (let j = i + 1 ; j < region.length; j++) {
-            if (isNeighbors(region[i], region[j]))
+            if (isNeighbors(region[i], region[j]) !== 0)
                 return false;
         }
     }

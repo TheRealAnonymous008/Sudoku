@@ -26,7 +26,6 @@ export default function solve(table : TableState) : TableState {
             
         }
     }
-
     eliminateByCell(table);
     eliminateByCandidate(table);
 
@@ -76,11 +75,11 @@ function eliminateByCandidate(table : TableState) {
             return;
         }
 
-        // deduction = simpleColoring(table, candidate);
-        // if (isValid(deduction)) {
-        //     console.log("[Simple Coloring] via candidate %d at cells %s affecting %s", candidate, formatCellsAsString(deduction.cause), formatCellsAsString(deduction.effect));
-        //     return;
-        // }
+        deduction = simpleColoring(table, candidate);
+        if (isValid(deduction)) {
+            console.log("[Simple Coloring] via candidate %d at cells %s affecting %s", candidate, formatCellsAsString(deduction.cause), formatCellsAsString(deduction.effect));
+            return;
+        }
     }
 }
 

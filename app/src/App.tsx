@@ -2,7 +2,7 @@ import logo from './logo.svg';
 import './App.css';
 import { createComputed, createEffect, createSignal } from 'solid-js';
 import { Table} from './utils/ui/Table';
-import { generateTable, setValueAt, TableState } from './utils/logic/rulesets/TableState';
+import { generateTable, isTableSatisfied, setValueAt, TableState } from './utils/logic/rulesets/TableState';
 import solve from './utils/solver/solve';
 
 function App() {
@@ -10,10 +10,14 @@ function App() {
   const [step, setStep] = createSignal(0);
 
   function onNextStep() {
-    setStep(step() + 1);
-    console.log("Step %d", step());
-    const newTable = solve(table());
-    duplicate();
+    if (!isTableSatisfied(table())) {
+      setStep(step() + 1);
+      console.log("Step %d", step());
+      setTable(solve(table()));
+      duplicate();
+    } else {
+      console.log("Finished!");
+    }
   }
 
   function duplicate(){

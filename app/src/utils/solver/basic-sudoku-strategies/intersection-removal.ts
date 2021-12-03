@@ -1,5 +1,5 @@
 import { Cell, getRegionDifference, getRegionIntersection, regionEliminateCandidate, getElementsWithCandidate, regionHasValue } from "../../logic/Cell";
-import { Deduction } from "../../logic/Deduction";
+import { Deduction, isValid } from "../../logic/Deduction";
 import { TableState } from "../../logic/rulesets/TableState";
 
 export default function intersectionRemoval (table : TableState, n : number) : Deduction{
@@ -23,7 +23,9 @@ export default function intersectionRemoval (table : TableState, n : number) : D
             const R = table.regions[r];
             const S = table.regions[s];
             
-            c = regionElimination(R, S, n);
+            c =  regionElimination(R, S, n);
+            if (isValid(c)) 
+                return c;
         }
     }
     return c;
@@ -35,13 +37,13 @@ export function regionElimination(R : Cell[], S : Cell[], n : number)  : Deducti
         cause : [],
         effect : []
     };
-
+    
     if (A.length <= 1 || regionHasValue(R, n) || regionHasValue(S, n)) {
         return deduction;
     }
 
-    const Rprime = getRegionDifference(R, A);
-    const Sprime = getRegionDifference(S, A);
+    let Rprime = getRegionDifference(R, A);
+    let Sprime = getRegionDifference(S, A);
 
     let isInR : boolean = (getElementsWithCandidate(Rprime, n).length !== 0);
     let isInS : boolean = (getElementsWithCandidate(Sprime, n).length !== 0);
@@ -59,10 +61,7 @@ export function regionElimination(R : Cell[], S : Cell[], n : number)  : Deducti
         }
         
        deduction.cause = deduction.cause.concat(A);
-
-       if (result) {
-           return deduction;
-       }
+       return deduction;
     }
 
     return deduction;

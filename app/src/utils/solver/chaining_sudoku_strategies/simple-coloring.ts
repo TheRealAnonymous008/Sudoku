@@ -1,4 +1,4 @@
-import { Cell, getElementsWithCandidate, isNeighbors } from "../../logic/Cell";
+import { Cell, getElementsWithCandidate, getRegionDifference, getRegionIntersection, intersects, isNeighbors } from "../../logic/Cell";
 import { Deduction } from "../../logic/Deduction";
 import { TableState } from "../../logic/rulesets/TableState";
 
@@ -44,10 +44,12 @@ export default function simpleColoring (table :TableState, n : number) : Deducti
 
     for (let i = 0; i < table.regions.length; i ++) {
         const cands = getElementsWithCandidate(table.regions[i], n);
+        // We ensure that the selected cells intersect at exactly 1 region.
         if (cands.length === 2) {
-            for (let j = 0; j < cands.length; j++) {
-                L.add(cands[j]);
-            }
+            if (isNeighbors(cands[0], cands[1]) === 1){
+                L.add(cands[0]);
+                L.add(cands[1]);
+            } 
         }
     }
 
@@ -64,7 +66,6 @@ export default function simpleColoring (table :TableState, n : number) : Deducti
     for (let i = 0; i < L.size; i++) {
         ltemp.push(iter.next().value);
     }
-    
     const chains :Cell[][] = formAllChains(ltemp);
     let chainUnion : Cell[] = [];
     let success = false;
@@ -74,7 +75,11 @@ export default function simpleColoring (table :TableState, n : number) : Deducti
         chainUnion = chainUnion.concat(chainUnion, chains[i]);
         if (!success) {
             deduction.effect = deduction.effect.concat(checkOffChain(table, b, n)); 
+            success = (deduction.effect.length !== 0);
+        }
+        if (!success) {
             deduction.effect = deduction.effect.concat(checkOnChain(table, b, n)); 
+            success = (deduction.effect.length !== 0);
         }
     }
 
@@ -84,43 +89,60 @@ export default function simpleColoring (table :TableState, n : number) : Deducti
 }
 
 export function checkOnChain(table : TableState, b : Bipartition, n : number) : Cell[] {
-    let effect = [];
-    for (let i = 0; i < b.first.length; i ++) {
-        if (b.second.includes(b.first[i])) {
-            b.first[i].candidates = b.first[i].candidates.filter( (value : number) => {
-                return value !== n;
-            });
-            effect.push(b.first[i]);
-        }
-    }
+    let effect : Cell[] = getRegionIntersection(b.first, b.second);
 
-    return effect;
+    // We ensure that each entry that has two colors cannot be the candidate
+    let success = false;
+    effect.forEach(element => {
+        if (element.candidates.includes(n))
+            success = true;
+        element.candidates = element.candidates.filter((value : number) => { return value !== n});
+        return element;
+    });
+
+    if(success)
+        return effect;
+    return [];
 }
 
 export function checkOffChain(table : TableState , b : Bipartition, n : number) : Cell[] {
     // Remove all entries not in the chain and which see two colors
     let effect : Cell[]= [];
-    table.cells.flat().forEach(cell => {
-        for(let i = 0; i < b.first.length; i++) {
-            for (let j = 0; j < b.second.length; j++) {
-                if (b.first.includes(cell) || b.second.includes(cell) || cell.value !== 0)
-                    continue;
+    const inter : Cell[] = getRegionIntersection(b.first, b.second);
+    const firstPrime = getRegionDifference(b.first, inter);
+    const secondPrime = getRegionDifference(b.second, inter);
 
-                if (isNeighbors(cell, b.first[i]) && isNeighbors(cell, b.second[j]) && 
-                !(b.first.includes(b.second[j]) || b.second.includes(b.first[i]))) {
-                    if (cell.candidates.includes(n)) {
+
+    for (let i = 0 ; i <table.cells.length; i++) {
+        for (let j = 0; j < table.cells.length; j++){
+            const cell = table.cells[i][j];
+            if (b.first.includes(cell) || b.second.includes(cell))
+                continue;
+
+            for (let x = 0; x < firstPrime.length; x++){
+                for(let y= 0 ; y < secondPrime.length; y ++) {
+                    if (isNeighbors(cell, firstPrime[x]) !== 0 && isNeighbors(cell, secondPrime[y]) !== 0 && 
+                    (isNeighbors(secondPrime[y], firstPrime[x]) === 0)) {
                         effect.push(cell);
-                        
-                        cell.candidates = cell.candidates.filter((value : number) => {
-                        return (value !== n);
-                    });
+                        break;
                     }
                 }
             }
         }
+    }
+
+    let success = false;
+    effect.forEach(element => {
+        if (element.candidates.includes(n))
+            success = true;
+
+        element.candidates = element.candidates.filter((value : number) => { return value !== n});
+
     });
 
-    return effect;
+    if (success)
+        return effect;
+    return [];
 }
 
 export function bipartition(cells : Cell[]) : Bipartition{
@@ -129,15 +151,7 @@ export function bipartition(cells : Cell[]) : Bipartition{
         second : []
     }
 
-    const colors : number[]= [];
-    let C : Cell[] = [] ;
-
-    for (let i = 0; i < cells.length; i++) {
-        C.push(cells[i]);
-        colors.push(-1);
-    }
-
-    B.first.push(C[0]);
+    B.first.push(cells[0]);
 
     const queue = [];
     queue.push(0);
@@ -146,16 +160,16 @@ export function bipartition(cells : Cell[]) : Bipartition{
         let c = queue[0];
         queue.shift();
 
-        for (let v = 0; v < C.length; v++){
-            if (isNeighbors(C[v], C[c])) {
-                if (!B.first.includes(C[v]) && !B.second.includes(C[v])) {
+        for (let v = 0; v < cells.length; v++){
+            if (isNeighbors(cells[v], cells[c]) !== 0) {
+                if (!B.first.includes(cells[v]) && !B.second.includes(cells[v]) && !queue.includes(v)) {
                     queue.push(v);
                 }
-                if (B.first.includes(C[c]) && !B.second.includes(C[v])) {
-                    B.second.push(C[v]);
+                if (B.first.includes(cells[c]) && !B.second.includes(cells[c]) && !B.second.includes(cells[v])) {
+                    B.second.push(cells[v]);
                 }
-                else if (B.second.includes(C[c]) && !B.first.includes(C[v])){
-                    B.first.push(C[v]);
+                else if (B.second.includes(cells[c]) && !B.first.includes(cells[c]) && !B.first.includes(cells[v])){
+                    B.first.push(cells[v]);
                 }
             }
         }
@@ -182,7 +196,7 @@ export function formAllChains (ltemp : Cell[]) : Cell[][] {
     // We union each entry in the graph.
     for (let i = 0; i < ltemp.length; i++) {
         for (let j = i; j < ltemp.length; j++) {
-            if (isNeighbors(ltemp[i], ltemp[j]))
+            if (isNeighbors(ltemp[i], ltemp[j]) !== 0)
                 union<Cell>(i, j, ufnodes);
         }
     }
