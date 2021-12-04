@@ -4,11 +4,14 @@ import { generateTable, TableState } from "../logic/rulesets/TableState";
 import composeClassnames from "./compose-classnames";
 
 
-export const Table = (table : TableState) => {
+export const Table = (props : { t : TableState, 
+                                onClick : (coordinate : [number, number]) => void,
+                                selection : {r : number, c : number};
+}) => {
     return (
         <table class = "table-auto-mt-2 border-collapse">
           <tbody>
-             <For each = {table.cells}>
+             <For each = {props.t.cells}>
                 {
                   (row : Cell[]) => (
                      <tr>
@@ -21,7 +24,10 @@ export const Table = (table : TableState) => {
                                 cell.column %3 === 1 ? "border-l-8" : "",
                                 cell.row %3 === 1 ? "border-t-8" : "",
                                 cell.column === 9 ? "border-r-8" : "",
-                                cell.row === 9 ? "border-b-8" : "")}>
+                                cell.row === 9 ? "border-b-8" : "",
+                                cell.row === props.selection.r && cell.column === props.selection.c ? "bg-blue-100": "")}
+                            onClick = {() => props.onClick([cell.row, cell.column])}
+                            >
                               <div class = "h-16 w-16">
                               <Switch> 
                                     <Match when={cell.value === 0}> 
