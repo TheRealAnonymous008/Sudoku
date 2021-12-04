@@ -1,5 +1,5 @@
 import { getRegionDifference, getRegionUnion, Region } from "./Region";
-import { Rule } from "./Rule";
+import { Rule } from "./rulesets/Rule";
 
 export interface Cell {
     row : number,

@@ -126,6 +126,7 @@ export function bipartition(cells : Cell[]) : Bipartition{
         first : [],
         second : []
     }
+    // We partition each element in the chain into two colors.
 
     B.first.push(cells[0]);
 

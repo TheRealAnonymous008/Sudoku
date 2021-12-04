@@ -1,7 +1,10 @@
 import { createEffect, createSignal, For , Switch, Match, createRenderEffect, createComputed} from "solid-js";
 import { Cell } from "../logic/Cell";
+import { getRuleOfType, RuleType } from "../logic/rulesets/Rule";
 import { getRecentDeduction, TableState } from "../logic/rulesets/TableState";
 import composeClassnames from "./compose-classnames";
+import { EvenRule } from "./rule-icons/EvenRule";
+import { OddRule } from "./rule-icons/OddRule";
 
 
 export const Table = (props : { table : TableState, 
@@ -32,28 +35,38 @@ export const Table = (props : { table : TableState,
                                 getRecentDeduction(props.table).effect.includes(cell) ? "bg-yellow-100" : "")}
                             onClick = {() => props.onClick([cell.row, cell.column])}
                             >
-                              <div class = "h-16 w-16">
-                              <Switch> 
-                                    <Match when={cell.value === 0}> 
-                                        <div class = "grid grid-flow-rows grid-cols-3 grid-rows-3">
-                                          <div> {cell.candidates.includes(1) ? 1 : ''} </div>
-                                          <div> {cell.candidates.includes(2) ? 2 : ''} </div>
-                                          <div> {cell.candidates.includes(3) ? 3 : ''} </div>
-                                          <div> {cell.candidates.includes(4) ? 4 : ''} </div>
-                                          <div> {cell.candidates.includes(5) ? 5 : ''} </div>
-                                          <div> {cell.candidates.includes(6) ? 6 : ''} </div>
-                                          <div> {cell.candidates.includes(7) ? 7 : ''} </div>
-                                          <div> {cell.candidates.includes(8) ? 8 : ''} </div>
-                                          <div> {cell.candidates.includes(9) ? 9 : ''} </div>
-                                        </div>
-                                    </Match>
-                                    <Match when={cell.value !== 0}> 
-                                        <div class = {composeClassnames("font-bold text-center align-middle text-4xl leading-loose",
-                                            cell.isGiven ? "text-black": "text-blue-500")}>
-                                            {cell.value}
-                                        </div>
-                                    </Match>
+                              <div class = "container_row h-16 w-16 ">
+                                <Switch>
+                                  <Match when={getRuleOfType(cell, RuleType.EvenCell) !== null}>
+                                    <EvenRule/>
+                                  </Match>
+                                  
+                                  <Match when={getRuleOfType(cell, RuleType.OddCell) !== null}>
+                                    <OddRule/>
+                                  </Match>
                                 </Switch>
+
+                                <Switch> 
+                                      <Match when={cell.value === 0}> 
+                                          <div class = "layer2 grid grid-flow-rows grid-cols-3 grid-rows-3">
+                                            <div> {cell.candidates.includes(1) ? 1 : ''} </div>
+                                            <div> {cell.candidates.includes(2) ? 2 : ''} </div>
+                                            <div> {cell.candidates.includes(3) ? 3 : ''} </div>
+                                            <div> {cell.candidates.includes(4) ? 4 : ''} </div>
+                                            <div> {cell.candidates.includes(5) ? 5 : ''} </div>
+                                            <div> {cell.candidates.includes(6) ? 6 : ''} </div>
+                                            <div> {cell.candidates.includes(7) ? 7 : ''} </div>
+                                            <div> {cell.candidates.includes(8) ? 8 : ''} </div>
+                                            <div> {cell.candidates.includes(9) ? 9 : ''} </div>
+                                          </div>
+                                      </Match>
+                                      <Match when={cell.value !== 0}> 
+                                          <div class = {composeClassnames("font-bold text-center align-middle text-4xl leading-loose",
+                                              cell.isGiven ? "text-black": "text-blue-500")}>
+                                              {cell.value}
+                                          </div>
+                                      </Match>
+                                  </Switch>
                               </div>                       
                             </td>      
                           )                    

@@ -23,7 +23,6 @@ export default function BUG(table : TableState) : Deduction{
     for (let i = 0; i < flattened.length; i++) {
         if (flattened[i].candidates.length !== 2 && flattened[i].value === 0) {
             if (bugfound){
-                console.log(bugCell);
                 return deduction;
             }
             else {
@@ -38,7 +37,7 @@ export default function BUG(table : TableState) : Deduction{
     // We then eliminate all candidates that can be paired.
     if (bugCell === null)  
         return deduction;
-        
+
     for (let k = 0 ; k < bugCell.candidates.length; k ++){
         for (let i = 0; i < bugCell.regions.length; i++ ){
             const cands = getElementsWithCandidate(bugCell.regions[i].cells, bugCell.candidates[k]);

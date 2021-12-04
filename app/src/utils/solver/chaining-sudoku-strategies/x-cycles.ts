@@ -1,10 +1,13 @@
 import { Deduction } from "../../logic/Deduction";
 import { TableState } from "../../logic/rulesets/TableState";
 
-export default function (table : TableState) : Deduction {
+export default function (table : TableState, n : number) : Deduction {
+    
+    // STRATEGY:                
+
     const deduction = {
         cause : [],
-        effect : [];
+        effect : []
     }
 
     return deduction;

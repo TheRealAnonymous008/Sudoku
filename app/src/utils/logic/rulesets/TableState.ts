@@ -1,8 +1,9 @@
 import { Cell } from "../Cell";
 import { Deduction } from "../Deduction";
 import { Region } from "../Region";
-import { Rule } from "../Rule";
+import { Rule } from "./Rule";
 import applyNormalRules from "./normal-rules";
+import { applyCellIsEven, applyCellIsOdd } from "./parity-rule";
 
 export interface TableState{
     cells : Cell[][],
@@ -54,12 +55,6 @@ export function generateTable () : TableState{
     table = applyRules(table);
     table = initializeTable(table);
     return table
-}
-
-
-export function applyRules (table : TableState) : TableState{
-    applyNormalRules(table);
-    return table;
 }
 
 export function isCellSatisfied(cell :Cell) : boolean {
@@ -135,5 +130,13 @@ export function initializeTable(table : TableState) : TableState{
             setValueAt(table ,i + 1, j + 1, grid[i][j], true);
         }
     }
+    return table;
+}
+
+export function applyRules (table : TableState) : TableState{
+    applyNormalRules(table);
+    applyCellIsEven(table.cells[0][0], table);
+    applyCellIsOdd(table.cells[8][8], table);
+
     return table;
 }

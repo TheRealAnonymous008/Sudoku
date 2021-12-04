@@ -1,7 +1,7 @@
 import { table } from "console";
 import { Cell } from "../Cell";
 import { Region, RegionType } from "../Region";
-import { Rule } from "../Rule";
+import { Rule, RuleType } from "./Rule";
 import { TableState } from "./TableState";
 
 export default function applyNormalRules(table : TableState) {
@@ -86,6 +86,7 @@ export function applyRegionRule(cell : Cell, table : TableState, R: Region) {
     const rule = {
         cell : cell, 
         table : table,
+        type : RuleType.Normal,
         isValid : (() => {
             if (cell.value === 0)
                 return false;
