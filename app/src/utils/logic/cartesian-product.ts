@@ -1,4 +1,5 @@
 export default function cartesianProduct <T> (A : T[], B : T[]) : T[][] {
+    
     const result : T[][] = [];
 
     for (let i = 0 ; i < A.length; i++) {
@@ -9,3 +10,4 @@ export default function cartesianProduct <T> (A : T[], B : T[]) : T[][] {
 
     return result;
 }
+

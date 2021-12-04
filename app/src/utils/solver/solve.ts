@@ -6,9 +6,10 @@ import { hiddenTuple } from "./basic-sudoku-strategies/hidden-tuple";
 import intersectionRemoval from "./basic-sudoku-strategies/intersection-removal";
 import {nakedTuple} from "./basic-sudoku-strategies/naked-tuples";
 import single from "./basic-sudoku-strategies/singles";
-import simpleColoring from "./chaining_sudoku_strategies/simple-coloring";
-import XWing from "./chaining_sudoku_strategies/x-wings";
-import YWing from "./chaining_sudoku_strategies/y-wings";
+import simpleColoring from "./chaining-sudoku-strategies/simple-coloring";
+import Swordfish from "./wing-sudoku-strategies/swordfish";
+import XWing from "./wing-sudoku-strategies/x-wings";
+import YWing from "./wing-sudoku-strategies/y-wings";
 
 
 export default function solve(table : TableState) : TableState {
@@ -83,6 +84,14 @@ function performDeductions(table : TableState) {
     if (isValid(deduction)) {
         console.log("[Classic Y-Wing] via cells %s affecting %s", formatCellsAsString(deduction.cause), formatCellsAsString(deduction.effect));
         return;
+    }
+
+    for (let candidate = 1; candidate <= 9; candidate ++) {
+        deduction = Swordfish(table, candidate);
+        if (isValid(deduction)) {
+            console.log("[Swordish] via candidate %d at cells %s affecting %s", candidate, formatCellsAsString(deduction.cause), formatCellsAsString(deduction.effect));
+            return;
+        }
     }
 
 }

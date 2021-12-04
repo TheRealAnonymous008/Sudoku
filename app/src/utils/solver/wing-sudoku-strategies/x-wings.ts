@@ -1,7 +1,7 @@
 import cartesianProduct from "../../logic/cartesian-product";
 import { Cell, getRegionUnion } from "../../logic/Cell";
 import { Deduction } from "../../logic/Deduction";
-import { getAll, getEmpty, TableState } from "../../logic/rulesets/TableState";
+import { getEmpty, TableState } from "../../logic/rulesets/TableState";
 import { regionElimination } from "../basic-sudoku-strategies/intersection-removal";
 
 export default function XWing(table : TableState, n : number) : Deduction{
