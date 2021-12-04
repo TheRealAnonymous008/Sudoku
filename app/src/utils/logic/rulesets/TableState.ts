@@ -128,7 +128,6 @@ export function initializeTable(table : TableState) : TableState{
                     [0, 0, 0,   0, 0, 0,   0, 0, 0],
                     [0, 0, 0,   0, 0, 0,   0, 0, 0]
                 ]
-    
     let grid = empty;
 
     for (let i = 0; i < 9; i ++) {

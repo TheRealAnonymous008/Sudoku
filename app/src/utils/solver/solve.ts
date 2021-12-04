@@ -7,8 +7,10 @@ import intersectionRemoval from "./basic-sudoku-strategies/intersection-removal"
 import {nakedTuple} from "./basic-sudoku-strategies/naked-tuples";
 import single from "./basic-sudoku-strategies/singles";
 import simpleColoring from "./chaining-sudoku-strategies/simple-coloring";
+import BUG from "./uniqueness-rules/BUG";
 import Swordfish from "./wing-sudoku-strategies/swordfish";
 import XWing from "./wing-sudoku-strategies/x-wings";
+import XYZWing from "./wing-sudoku-strategies/xyz-wing";
 import YWing from "./wing-sudoku-strategies/y-wings";
 
 
@@ -92,6 +94,18 @@ function performDeductions(table : TableState) : Deduction {
             console.log("[Swordish] via candidate %d at cells %s affecting %s", candidate, formatCellsAsString(deduction.cause), formatCellsAsString(deduction.effect));
             return deduction;
         }
+    }
+
+    deduction = XYZWing(table);
+    if (isValid(deduction)) {
+        console.log("[Classic XYZ-Wing] via cells %s affecting %s", formatCellsAsString(deduction.cause), formatCellsAsString(deduction.effect));
+        return deduction;
+    }
+
+    deduction = BUG(table);
+    if (isValid(deduction)) {
+        console.log("[B.U.G] via cells %s affecting %s", formatCellsAsString(deduction.cause), formatCellsAsString(deduction.effect));
+        return deduction;
     }
 
     return deduction;

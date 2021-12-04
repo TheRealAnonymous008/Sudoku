@@ -98,7 +98,7 @@ export function checkOffChain(table : TableState , b : Bipartition, n : number) 
             for (let x = 0; x < firstPrime.length; x++){
                 for(let y= 0 ; y < secondPrime.length; y ++) {
                     if (isNeighbors(cell, firstPrime[x]) !== 0 && isNeighbors(cell, secondPrime[y]) !== 0 && 
-                    (isNeighbors(secondPrime[y], firstPrime[x]) === 0)) {
+                    (isNeighbors(secondPrime[y], firstPrime[x]) === 0) && cell.value === 0) {
                         effect.push(cell);
                         break;
                     }
