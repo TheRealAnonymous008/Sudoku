@@ -135,8 +135,5 @@ export function initializeTable(table : TableState) : TableState{
 
 export function applyRules (table : TableState) : TableState{
     applyNormalRules(table);
-    applyCellIsEven(table.cells[0][0], table);
-    applyCellIsOdd(table.cells[8][8], table);
-
     return table;
 }

@@ -3,13 +3,13 @@ import { Deduction } from "../../logic/Deduction";
 import { getRegionIntersection, getRegionDifference, getElementsWithCandidate } from "../../logic/Region";
 import { TableState } from "../../logic/rulesets/TableState";
 
-type UnionFindNode<T> = {
+export type UnionFindNode<T> = {
     parent : number, 
     size : number,
     value : T
 }
 
-type Bipartition = {
+export type Bipartition = {
     first : Cell[],
     second : Cell[]
 }
@@ -98,7 +98,7 @@ export function checkOffChain(table : TableState , b : Bipartition, n : number) 
             for (let x = 0; x < firstPrime.length; x++){
                 for(let y= 0 ; y < secondPrime.length; y ++) {
                     if (isNeighbors(cell, firstPrime[x]) !== 0 && isNeighbors(cell, secondPrime[y]) !== 0 && 
-                    (isNeighbors(secondPrime[y], firstPrime[x]) === 0) && cell.value === 0) {
+                    (!secondPrime.includes(firstPrime[x])) && cell.value === 0) {
                         effect.push(cell);
                         break;
                     }
@@ -216,7 +216,7 @@ export function formAllChains (table : TableState, n : number) : Cell[][] {
     return chains;
 }
 
-function find<T>(index : number, ufnodes : UnionFindNode<T>[]) : number {
+export function find<T>(index : number, ufnodes : UnionFindNode<T>[]) : number {
     if (ufnodes[index].parent !== index) {
         ufnodes[index].parent = find<T>(ufnodes[index].parent, ufnodes);
         return ufnodes[index].parent;
@@ -224,7 +224,7 @@ function find<T>(index : number, ufnodes : UnionFindNode<T>[]) : number {
     return index;
 };
 
-function union<T>(x : number, y : number, ufnodes : UnionFindNode<T>[]) {
+export function union<T>(x : number, y : number, ufnodes : UnionFindNode<T>[]) {
     x = find<T>(x, ufnodes);
     y = find<T>(y, ufnodes);
 

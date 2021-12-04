@@ -7,6 +7,7 @@ import intersectionRemoval from "./basic-sudoku-strategies/intersection-removal"
 import {nakedTuple} from "./basic-sudoku-strategies/naked-tuples";
 import single from "./basic-sudoku-strategies/singles";
 import simpleColoring from "./chaining-sudoku-strategies/simple-coloring";
+import XCycle from "./chaining-sudoku-strategies/x-cycles";
 import BUG from "./uniqueness-rules/BUG";
 import Swordfish from "./wing-sudoku-strategies/swordfish";
 import XWing from "./wing-sudoku-strategies/x-wings";
@@ -23,11 +24,18 @@ export default function solve(table : TableState) : TableState {
         }
     }
 
+    // It is essential to perform this once. This allows other algorithms reliant on candidates lists
+    // to be updated.
     for (let i = 0; i < table.cells.length; i ++) {
         for (let j = 0; j < table.cells[0].length; j++) {
-            if (single(table.cells[i][j]) )
+            if (single(table.cells[i][j]) ){
                 console.log("[Singleton] r%d c%d has value %d", i + 1, j + 1, table.cells[i][j].value);
-            
+                table.deduction.push ({
+                    cause : [table.cells[i][j]],
+                    effect : [table.cells[i][j]]
+                })
+                return table;
+            }
         }
     }
     table.deduction.push(performDeductions(table));
@@ -106,6 +114,14 @@ function performDeductions(table : TableState) : Deduction {
     if (isValid(deduction)) {
         console.log("[B.U.G] via cells %s affecting %s", formatCellsAsString(deduction.cause), formatCellsAsString(deduction.effect));
         return deduction;
+    }
+
+    for (let candidate = 1; candidate <= 9; candidate ++) {
+        deduction = XCycle(table, candidate);
+        if (isValid(deduction)) {
+            console.log("[X-Cycles] via candidate %d at cells %s affecting %s", candidate, formatCellsAsString(deduction.cause), formatCellsAsString(deduction.effect));
+            return deduction;
+        }
     }
 
     return deduction;

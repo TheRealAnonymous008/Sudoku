@@ -58,7 +58,7 @@ export default function YWing(table : TableState) : Deduction{
 
 export function formsYWing(pivot : Cell, x : Cell, y : Cell) : boolean {
     // Rules out naked pairs.
-    if ( formsTuple([pivot, x], 2) || formsTuple([pivot, y], 2))
+    if ( formsTuple([pivot, x], 2) || formsTuple([pivot, y], 2) || formsTuple([x, y], 2))
         return false
 
     if ( !formsTuple([pivot, x, y], 3))

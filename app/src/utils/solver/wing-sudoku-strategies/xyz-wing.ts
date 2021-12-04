@@ -59,7 +59,7 @@ export default function XYZWing(table : TableState) : Deduction{
 
 export function formsXYZWing(hinge : Cell, x : Cell, y : Cell) : boolean{
     // The hinge must have all 3 candidates.
-    if ( formsTuple([hinge, x], 2) || formsTuple([hinge, y], 2))
+    if ( formsTuple([hinge, x], 2) || formsTuple([hinge, y], 2) || formsTuple([x, y], 2))
         return false
 
     if ( !formsTuple([hinge, x, y], 3))

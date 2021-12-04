@@ -1,6 +1,6 @@
 import { Cell } from "../../logic/Cell";
 import { Deduction, isValid } from "../../logic/Deduction";
-import { getElementsWithCandidate } from "../../logic/Region";
+import { getElementsWithCandidate, getRegionDifference } from "../../logic/Region";
 import { TableState } from "../../logic/rulesets/TableState";
 
 export default function BUG(table : TableState) : Deduction{
@@ -21,7 +21,7 @@ export default function BUG(table : TableState) : Deduction{
     const flattened = table.cells.flat();
 
     for (let i = 0; i < flattened.length; i++) {
-        if (flattened[i].candidates.length !== 2 && flattened[i].value === 0) {
+        if (flattened[i].candidates.length > 2 && flattened[i].value === 0) {
             if (bugfound){
                 return deduction;
             }

@@ -28,11 +28,9 @@ export const Table = (props : { table : TableState,
                                 cell.row %3 === 1 ? "border-t-8" : "",
                                 cell.column === 9 ? "border-r-8" : "",
                                 cell.row === 9 ? "border-b-8" : "",
-                                cell.row === props.selection.r && cell.column === props.selection.c ? "bg-blue-100": "",
-                                getRecentDeduction(props.table).cause.includes(cell)?  "bg-red-100" : "",
-                                getRecentDeduction(props.table).effect.includes(cell) ? "bg-green-100" : "",
-                                getRecentDeduction(props.table).cause.includes(cell) &&
-                                getRecentDeduction(props.table).effect.includes(cell) ? "bg-yellow-100" : "")}
+                                cell.row === props.selection.r && cell.column === props.selection.c ? "bg-blue-100 bg-opacity-50": "",
+                                getRecentDeduction(props.table).cause.includes(cell)?  "bg-red-100 bg-opacity-50" : "",
+                                getRecentDeduction(props.table).effect.includes(cell) ? "bg-green-100 bg-opacity-50" : "",)}
                             onClick = {() => props.onClick([cell.row, cell.column])}
                             >
                               <div class = "container_row h-16 w-16 ">
