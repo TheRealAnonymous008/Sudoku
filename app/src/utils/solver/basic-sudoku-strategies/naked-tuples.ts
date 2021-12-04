@@ -32,7 +32,7 @@ export function nakedTuple(cell : Cell, table : TableState, t : number) : Deduct
 
             candidatesList = pruneNonTuple(candidatesList, t);
 
-            if (formsTuple(candidatesList) && candidatesList.length !== empty) {
+            if (formsTuple(candidatesList, t) && candidatesList.length !== empty) {
                 for (let c = 0; c < cell.regions[r].length ; c++) {
                     const other = cell.regions[r][c];
                     if (!candidatesList.includes(other) && other.value ===0) {
@@ -120,9 +120,9 @@ export function getRunningList(cells : Cell[]){
     return runningList;
 }
 
-export function formsTuple(cells : Cell[]) : boolean{
+export function formsTuple(cells : Cell[], n : number) : boolean{
     if (cells.length === 0)
         return false;
 
-    return getRunningList(cells).size === cells.length;
+    return getRunningList(cells).size === cells.length && cells.length === n;
 }

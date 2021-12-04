@@ -1,6 +1,6 @@
 import { Cell } from "../logic/Cell";
 import { Deduction, isValid } from "../logic/Deduction";
-import { isCellSatisfied, TableState } from "../logic/rulesets/TableState";
+import { TableState } from "../logic/rulesets/TableState";
 import candidateElimination from "./basic-sudoku-strategies/candidate-elimination";
 import { hiddenTuple } from "./basic-sudoku-strategies/hidden-tuple";
 import intersectionRemoval from "./basic-sudoku-strategies/intersection-removal";
@@ -8,6 +8,7 @@ import {nakedTuple} from "./basic-sudoku-strategies/naked-tuples";
 import single from "./basic-sudoku-strategies/singles";
 import simpleColoring from "./chaining_sudoku_strategies/simple-coloring";
 import XWing from "./chaining_sudoku_strategies/x-wings";
+import YWing from "./chaining_sudoku_strategies/y-wings";
 
 
 export default function solve(table : TableState) : TableState {
@@ -26,13 +27,12 @@ export default function solve(table : TableState) : TableState {
             
         }
     }
-    eliminateByCell(table);
-    eliminateByCandidate(table);
+    performDeductions(table);
 
     return table;
 }
 
-function eliminateByCell(table : TableState) {
+function performDeductions(table : TableState) {
     let deduction : Deduction
     
     for (let t = 2; t <= 4; t ++) {
@@ -58,10 +58,7 @@ function eliminateByCell(table : TableState) {
             }
         }
     }
-}
 
-function eliminateByCandidate(table : TableState) {
-    let deduction : Deduction;
     for (let candidate = 1; candidate <= 9; candidate ++) {
         deduction = intersectionRemoval(table, candidate);
         if (isValid(deduction)) {
@@ -81,8 +78,14 @@ function eliminateByCandidate(table : TableState) {
             return;
         }
     }
-}
 
+    deduction = YWing(table);
+    if (isValid(deduction)) {
+        console.log("[Classic Y-Wing] via cells %s affecting %s", formatCellsAsString(deduction.cause), formatCellsAsString(deduction.effect));
+        return;
+    }
+
+}
 
 function formatCellsAsString(cells : Cell[]) : String {
     let str = ""

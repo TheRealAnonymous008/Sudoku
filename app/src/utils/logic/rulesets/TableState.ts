@@ -70,7 +70,7 @@ export function getEmpty (table : TableState) : Cell[] {
     const result : Cell[] = [];
     for (let i = 0; i < table.cells.length ; i ++) {
         for (let j = 0; j < table.cells[0].length; j++) {
-            if (table.cells[i][j].value !== 0)
+            if (table.cells[i][j].value === 0)
                 result.push(table.cells[i][j]);
         }
     }
@@ -155,9 +155,22 @@ export function initializeTable(table : TableState) : TableState{
 
                 [0, 0, 1,   0, 0, 0,   9, 0, 4], 
                 [0, 0, 0,   7, 0, 9,   3, 0, 0],
-                [0, 0, 0,   0, 0, 4,   1, 2, 0]]
+                [0, 0, 0,   0, 0, 4,   1, 2, 0]];
 
-    let grid = colortest2;
+    let ywingTest = 
+                [   [9, 0, 0,   0, 4, 0,   0, 0, 0],
+                    [0, 0, 0,   6, 0, 0,   0, 3, 1],
+                    [0, 2, 0,   0, 0, 0,   0, 9, 0],
+
+                    [0, 0, 0,   7, 0, 0,   0, 2, 0],
+                    [0, 0, 2,   9, 3, 5,   6, 0, 0],
+                    [0, 7, 0,   0, 0, 2,   0, 0, 0], 
+
+                    [0, 6, 0,   0, 0, 0,   0, 7, 3], 
+                    [5, 1, 0,   0, 0, 9,   0, 0, 0],
+                    [0, 0, 0,   0, 8, 0,   0, 0, 9]]
+
+    let grid = colortest;
 
     for (let i = 0; i < 9; i ++) {
         for (let j = 0; j < 9; j++) {

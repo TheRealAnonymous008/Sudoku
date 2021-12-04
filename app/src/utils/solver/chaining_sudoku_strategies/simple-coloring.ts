@@ -38,35 +38,7 @@ export default function simpleColoring (table :TableState, n : number) : Deducti
         cause : [],
         effect : []
     }
-
-    const L : Set<Cell> = new Set<Cell>();
-    const M : Set<Cell> = new Set<Cell>();
-
-    for (let i = 0; i < table.regions.length; i ++) {
-        const cands = getElementsWithCandidate(table.regions[i], n);
-        // We ensure that the selected cells intersect at exactly 1 region.
-        if (cands.length === 2) {
-            if (isNeighbors(cands[0], cands[1]) === 1){
-                L.add(cands[0]);
-                L.add(cands[1]);
-            } 
-        }
-    }
-
-    table.cells.flat().forEach(cell => {
-        if (! L.has(cell)) {
-            M.add(cell);
-        }
-    });
-
-    // We begin to build the chain.
-    let ltemp : Cell[] = []
-
-    const iter = L.values();
-    for (let i = 0; i < L.size; i++) {
-        ltemp.push(iter.next().value);
-    }
-    const chains :Cell[][] = formAllChains(ltemp);
+    const chains :Cell[][] = formAllChains(table, n);
     let chainUnion : Cell[] = [];
     let success = false;
     // We then eliminate candidates based on the subrules for each chain
@@ -84,6 +56,9 @@ export default function simpleColoring (table :TableState, n : number) : Deducti
     }
 
     deduction.cause = chainUnion;
+    deduction.effect = deduction.effect.filter((c, index) => {
+        return deduction.effect.indexOf(c) === index;
+    })
 
     return deduction;
 }
@@ -178,29 +153,42 @@ export function bipartition(cells : Cell[]) : Bipartition{
     return B;
 }
 
-export function formAllChains (ltemp : Cell[]) : Cell[][] {
+export function formAllChains (table : TableState, n : number) : Cell[][] {
     const chains :Cell[][] = [];
     // ALGORITHM   :       Perform Union-Find on the set of cells. This produces a list of disjoint sets
     //                     Which can then be traversed and colored via BFS
     let ufnodes : UnionFindNode<Cell>[] = [] ;
+    let pairs : number[][] = [];
+    let nodes : Cell[]= []
 
-    for (let i = 0; i < ltemp.length; i++) {
+    for (let i = 0; i < table.regions.length; i ++) {
+        const cands = getElementsWithCandidate(table.regions[i], n);
+        // We ensure that the selected cells intersect at exactly 1 region.
+        // We also build the graph here so that the individual links in the graph are properly made.
+        if (cands.length === 2) {
+            if (isNeighbors(cands[0], cands[1]) === 1){
+                if (!nodes.includes(cands[0]))
+                    nodes.push(cands[0]);
+                if (!nodes.includes(cands[1]))
+                    nodes.push(cands[1]);
+                
+                pairs.push([nodes.indexOf(cands[0]), nodes.indexOf(cands[1])]);
+            } 
+        }
+    }
+
+    for (let i = 0; i < nodes.length; i++) {
         ufnodes.push ( {
             parent : i, 
             size : 1,
-            value : ltemp[i]
+            value : nodes[i]
         });
     }
 
     
-    // We union each entry in the graph.
-    for (let i = 0; i < ltemp.length; i++) {
-        for (let j = i; j < ltemp.length; j++) {
-            if (isNeighbors(ltemp[i], ltemp[j]) !== 0)
-                union<Cell>(i, j, ufnodes);
-        }
+    for (let i =0 ; i < pairs.length; i++){
+        union<Cell>(pairs[i][0], pairs[i][1], ufnodes);
     }
-
 
     // We then build each chain as a collection of subgraphs.
     // First we add all the root nodes

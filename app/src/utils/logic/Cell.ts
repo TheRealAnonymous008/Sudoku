@@ -86,6 +86,18 @@ export function regionHasValue (r : Cell[], n : number) : boolean {
     return false;
 }
 
+export function getNeighborhood(c : Cell) : Cell[] {
+    let neighborhood  : Cell[] = [];
+    
+    for (let i = 0; i <c.regions.length; i++) {
+        neighborhood = getRegionUnion(neighborhood, c.regions[i]);
+    }
+
+    neighborhood = getRegionDifference(neighborhood, [c]);
+
+    return neighborhood;
+}
+
 export function regionEliminateCandidate(r : Cell[], n : number) : boolean{
     const s : Cell[]= [];
     for (let i = 0; i < r.length; i ++) {
@@ -126,3 +138,17 @@ export function isDisjoint (region : Cell[]) : boolean {
     
     return true;
 } 
+
+export function getCommonCandidates(c : Cell, d : Cell) : number[] {
+    let inter : number[] = [];
+
+    if (c.value !== 0 || d.value !== 0)
+        return inter;
+
+    for (let i = 0; i < c.candidates.length; i++) {
+        if (d.candidates.includes(c.candidates[i])){
+            inter.push(c.candidates[i]);
+        }
+    }
+    return inter;
+}
