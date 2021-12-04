@@ -3,7 +3,6 @@ import { createEffect, createSignal } from 'solid-js';
 import { Table} from './utils/ui/Table';
 import { generateTable, isTableSatisfied, setValueAt, TableState } from './utils/logic/rulesets/TableState';
 import solve from './utils/solver/solve';
-import { Cell } from './utils/logic/Cell';
 
 function App() {
   const [table, setTable] = createSignal<TableState>(generateTable());
@@ -47,14 +46,15 @@ function App() {
     }
     setTable ({
       cells : cells,
-      regions : table().regions
+      regions : table().regions,
+      deduction : table().deduction
     })
   }
 
   return (
     <div class="App">
       <div>
-        <Table t = {table()} onClick = {onCellClick} selection = {selection()}/>
+        <Table table = {table()} onClick = {onCellClick} selection = {selection()}/>
       </div>
 
       <div class = "mt-8"> 

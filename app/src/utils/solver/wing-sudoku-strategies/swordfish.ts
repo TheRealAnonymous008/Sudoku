@@ -1,6 +1,7 @@
 import cartesianProduct from "../../logic/cartesian-product";
-import { Cell, getRegionUnion } from "../../logic/Cell";
+import { Cell } from "../../logic/Cell";
 import { Deduction } from "../../logic/Deduction";
+import { getRegionUnion } from "../../logic/Region";
 import { getAll, getEmpty, TableState } from "../../logic/rulesets/TableState";
 import { regionElimination } from "../basic-sudoku-strategies/intersection-removal";
 
@@ -36,8 +37,8 @@ export default function Swordfish(table : TableState, n : number) : Deduction{
                 && x.row !== z.row && x.column !== z.column
                 && y.row !== z.row && y.column !== z.column) {
 
-                const R = getRegionUnion(getRegionUnion(x.regions[0], y.regions[0]), z.regions[0]);
-                const C = getRegionUnion(getRegionUnion(x.regions[1], y.regions[1]), z.regions[1]);
+                const R = getRegionUnion(getRegionUnion(x.regions[0].cells, y.regions[0].cells), z.regions[0].cells);
+                const C = getRegionUnion(getRegionUnion(x.regions[1].cells, y.regions[1].cells), z.regions[1].cells);
 
                 result = regionElimination(R, C, n);
                 if (result.effect.length !== 0)

@@ -1,6 +1,7 @@
 import cartesianProduct from "../../logic/cartesian-product";
-import { Cell, getCommonCandidates, getNeighborhood, getRegionDifference, getRegionIntersection, isNeighbors } from "../../logic/Cell";
+import { Cell, getCommonCandidates, getNeighborhood, isNeighbors } from "../../logic/Cell";
 import { Deduction, isValid } from "../../logic/Deduction";
+import { getRegionIntersection, getRegionDifference } from "../../logic/Region";
 import { getEmpty, TableState } from "../../logic/rulesets/TableState";
 import { formsTuple} from "../basic-sudoku-strategies/naked-tuples";
 
@@ -43,7 +44,6 @@ export default function YWing(table : TableState) : Deduction{
                     };
                     
                     if (isValid(deduction)){
-                        console.log(x, y, T, c);
                         return deduction;
                     }
                 }

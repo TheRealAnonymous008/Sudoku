@@ -1,5 +1,6 @@
-import { Cell, getRegionDifference, getRegionIntersection, regionEliminateCandidate, getElementsWithCandidate, regionHasValue } from "../../logic/Cell";
+import { Cell } from "../../logic/Cell";
 import { Deduction, isValid } from "../../logic/Deduction";
+import { getRegionIntersection, regionHasValue, getRegionDifference, getElementsWithCandidate, regionEliminateCandidate } from "../../logic/Region";
 import { TableState } from "../../logic/rulesets/TableState";
 
 export default function intersectionRemoval (table : TableState, n : number) : Deduction{
@@ -23,7 +24,7 @@ export default function intersectionRemoval (table : TableState, n : number) : D
             const R = table.regions[r];
             const S = table.regions[s];
             
-            c =  regionElimination(R, S, n);
+            c =  regionElimination(R.cells, S.cells, n);
             if (isValid(c)) 
                 return c;
         }

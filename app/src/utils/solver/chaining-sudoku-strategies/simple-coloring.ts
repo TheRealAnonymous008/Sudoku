@@ -1,5 +1,6 @@
-import { Cell, getElementsWithCandidate, getRegionDifference, getRegionIntersection, intersects, isNeighbors } from "../../logic/Cell";
+import { Cell, isNeighbors } from "../../logic/Cell";
 import { Deduction } from "../../logic/Deduction";
+import { getRegionIntersection, getRegionDifference, getElementsWithCandidate } from "../../logic/Region";
 import { TableState } from "../../logic/rulesets/TableState";
 
 type UnionFindNode<T> = {
@@ -162,7 +163,7 @@ export function formAllChains (table : TableState, n : number) : Cell[][] {
     let nodes : Cell[]= []
 
     for (let i = 0; i < table.regions.length; i ++) {
-        const cands = getElementsWithCandidate(table.regions[i], n);
+        const cands = getElementsWithCandidate(table.regions[i].cells, n);
         // We ensure that the selected cells intersect at exactly 1 region.
         // We also build the graph here so that the individual links in the graph are properly made.
         if (cands.length === 2) {

@@ -1,6 +1,7 @@
 import cartesianProduct from "../../logic/cartesian-product";
-import { Cell, getRegionUnion } from "../../logic/Cell";
+import { Cell } from "../../logic/Cell";
 import { Deduction } from "../../logic/Deduction";
+import { getRegionUnion } from "../../logic/Region";
 import { getEmpty, TableState } from "../../logic/rulesets/TableState";
 import { regionElimination } from "../basic-sudoku-strategies/intersection-removal";
 
@@ -26,8 +27,8 @@ export default function XWing(table : TableState, n : number) : Deduction{
     for (let i = 0 ; i < matrix.length; i ++) {
         const [x, y] = matrix[i];
         if (x.row !== y.row && x.column !== y.column) {
-            const R = getRegionUnion(x.regions[0], y.regions[0]);
-            const C = getRegionUnion(x.regions[1], y.regions[1]);
+            const R = getRegionUnion(x.regions[0].cells, y.regions[0].cells);
+            const C = getRegionUnion(x.regions[1].cells, y.regions[1].cells);
 
             result = regionElimination(R, C, n);
             if (result.effect.length !== 0)

@@ -1,10 +1,13 @@
 import { Cell } from "../Cell";
+import { Deduction } from "../Deduction";
+import { Region } from "../Region";
 import { Rule } from "../Rule";
 import applyNormalRules from "./normal-rules";
 
 export interface TableState{
     cells : Cell[][],
-    regions : Cell[][]
+    regions : Region[],
+    deduction: Deduction[]
 }
 
 export function setValueAt (table : TableState, row : number, column : number, value : number, given : boolean = false) {
@@ -17,6 +20,8 @@ export function setValueAt (table : TableState, row : number, column : number, v
     if (value === 0) {
         table.cells[row - 1][column - 1].candidates = [1,2,3,4,5,6,7,8,9];
         table.cells[row - 1][column - 1].isGiven = false;
+    } else {
+        table.cells[row - 1][column - 1].candidates = [];
     }
 
     table.cells[row - 1][column - 1].value = value;
@@ -42,7 +47,8 @@ export function generateTable () : TableState{
 
     let table  : TableState=  {
         cells : cells,
-        regions : []
+        regions : [],
+        deduction :[]
     };
 
     table = applyRules(table);
@@ -95,6 +101,15 @@ export function getAll (table : TableState) : Cell[] {
     }
 
     return result;
+}
+
+export function getRecentDeduction(table : TableState) : Deduction {
+    if (table.deduction.length > 0)
+        return table.deduction[table.deduction.length - 1];
+    return {
+        cause : [],
+        effect : []
+    }
 }
 
 export function initializeTable(table : TableState) : TableState{

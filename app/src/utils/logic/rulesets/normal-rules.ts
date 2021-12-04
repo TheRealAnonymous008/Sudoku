@@ -1,5 +1,6 @@
 import { table } from "console";
 import { Cell } from "../Cell";
+import { Region, RegionType } from "../Region";
 import { Rule } from "../Rule";
 import { TableState } from "./TableState";
 
@@ -11,12 +12,20 @@ export default function applyNormalRules(table : TableState) {
             region.push(table.cells[i][k]);
         }
 
-        for (let k = 0 ; k < 9; k ++) {
-            applyRegionRule(region[k], table, region)
-            region[k].regions.push(region);
+        const R : Region  = {
+            cells : region,
+            type : RegionType.Row
         }
 
-        table.regions.push(region);
+        for (let k = 0 ; k < 9; k ++) {
+            applyRegionRule(region[k], table, R)
+            region[k].regions.push({
+                cells : region,
+                type : RegionType.Row
+            });
+        }
+
+        table.regions.push(R);
     }
 
     // Apply column rules
@@ -26,12 +35,17 @@ export default function applyNormalRules(table : TableState) {
             region.push(table.cells[k][i]);
         }
 
+        const R : Region  = {
+            cells : region,
+            type : RegionType.Column
+        }
+        
         for (let k = 0 ; k < 9; k ++) {
-            applyRegionRule(region[k], table, region)
-            region[k].regions.push(region);
+            applyRegionRule(region[k], table, R)
+            region[k].regions.push(R);
         }
 
-        table.regions.push(region);
+        table.regions.push(R);
     }
 
 
@@ -50,19 +64,25 @@ export default function applyNormalRules(table : TableState) {
                 table.cells[i + 1][j + 1],
             ];
 
-            for (let k = 0 ; k < 9; k ++) {
-                applyRegionRule(region[k], table, region)
-                region[k].regions.push(region);
+            const R : Region  = {
+                cells : region,
+                type : RegionType.NormalBox
             }
 
-            table.regions.push(region);
+            for (let k = 0 ; k < 9; k ++) {
+                applyRegionRule(region[k], table, R)
+                region[k].regions.push(R);
+            }
+
+            table.regions.push(R);
         }
     }
 
 }
 
-export function applyRegionRule(cell : Cell, table : TableState, region : Cell[]) {
-    // RULE : This cell's entry must be the only one in its box
+export function applyRegionRule(cell : Cell, table : TableState, R: Region) {
+    // RULE : This cell's entry must be the only one in its region
+    const region : Cell[] = R.cells;
     const rule = {
         cell : cell, 
         table : table,

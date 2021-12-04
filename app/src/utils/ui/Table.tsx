@@ -1,17 +1,17 @@
 import { createEffect, createSignal, For , Switch, Match, createRenderEffect, createComputed} from "solid-js";
 import { Cell } from "../logic/Cell";
-import { generateTable, TableState } from "../logic/rulesets/TableState";
+import { getRecentDeduction, TableState } from "../logic/rulesets/TableState";
 import composeClassnames from "./compose-classnames";
 
 
-export const Table = (props : { t : TableState, 
+export const Table = (props : { table : TableState, 
                                 onClick : (coordinate : [number, number]) => void,
                                 selection : {r : number, c : number};
 }) => {
     return (
         <table class = "table-auto-mt-2 border-collapse">
           <tbody>
-             <For each = {props.t.cells}>
+             <For each = {props.table.cells}>
                 {
                   (row : Cell[]) => (
                      <tr>
@@ -25,7 +25,11 @@ export const Table = (props : { t : TableState,
                                 cell.row %3 === 1 ? "border-t-8" : "",
                                 cell.column === 9 ? "border-r-8" : "",
                                 cell.row === 9 ? "border-b-8" : "",
-                                cell.row === props.selection.r && cell.column === props.selection.c ? "bg-blue-100": "")}
+                                cell.row === props.selection.r && cell.column === props.selection.c ? "bg-blue-100": "",
+                                getRecentDeduction(props.table).cause.includes(cell)?  "bg-red-100" : "",
+                                getRecentDeduction(props.table).effect.includes(cell) ? "bg-green-100" : "",
+                                getRecentDeduction(props.table).cause.includes(cell) &&
+                                getRecentDeduction(props.table).effect.includes(cell) ? "bg-yellow-100" : "")}
                             onClick = {() => props.onClick([cell.row, cell.column])}
                             >
                               <div class = "h-16 w-16">

@@ -21,8 +21,8 @@ export function nakedTuple(cell : Cell, table : TableState, t : number) : Deduct
             candidatesList.push(cell);
             let empty = 0;
 
-            for (let c = 0; c < cell.regions[r].length; c++) {
-                const other = cell.regions[r][c];
+            for (let c = 0; c < cell.regions[r].cells.length; c++) {
+                const other = cell.regions[r].cells[c];
                 if (intersects(cell, other)){
                     candidatesList.push(other);
                 }
@@ -33,8 +33,8 @@ export function nakedTuple(cell : Cell, table : TableState, t : number) : Deduct
             candidatesList = pruneNonTuple(candidatesList, t);
 
             if (formsTuple(candidatesList, t) && candidatesList.length !== empty) {
-                for (let c = 0; c < cell.regions[r].length ; c++) {
-                    const other = cell.regions[r][c];
+                for (let c = 0; c < cell.regions[r].cells.length ; c++) {
+                    const other = cell.regions[r].cells[c];
                     if (!candidatesList.includes(other) && other.value ===0) {
                         const length = other.candidates.length;
                         eliminateCandidates(other, getRunningList(candidatesList));
@@ -45,9 +45,11 @@ export function nakedTuple(cell : Cell, table : TableState, t : number) : Deduct
                     }
                 }
             }
-        }
-        if (success){
-            deduction.cause = candidatesList;
+            
+            if (success){
+                deduction.cause = candidatesList;
+                return deduction;
+            }
         }
     }
 

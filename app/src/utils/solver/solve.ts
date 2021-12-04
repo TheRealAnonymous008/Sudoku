@@ -28,12 +28,12 @@ export default function solve(table : TableState) : TableState {
             
         }
     }
-    performDeductions(table);
+    table.deduction.push(performDeductions(table));
 
     return table;
 }
 
-function performDeductions(table : TableState) {
+function performDeductions(table : TableState) : Deduction {
     let deduction : Deduction
     
     for (let t = 2; t <= 4; t ++) {
@@ -42,7 +42,7 @@ function performDeductions(table : TableState) {
                 deduction = nakedTuple(table.cells[i][j], table, t);
                 if (isValid(deduction)) {
                     console.log("[Naked tuple] via cells: %s affecting %s", formatCellsAsString(deduction.cause) , formatCellsAsString(deduction.effect));
-                    return;
+                    return deduction;
                 }
             }
         }
@@ -54,7 +54,7 @@ function performDeductions(table : TableState) {
                 deduction = hiddenTuple(table.cells[i][j], table, t);
                 if (isValid(deduction)) {
                     console.log("[Hidden tuple] via cells: %s affecting %s", formatCellsAsString(deduction.cause) , formatCellsAsString(deduction.effect));
-                    return;
+                    return deduction;
                 }
             }
         }
@@ -64,36 +64,37 @@ function performDeductions(table : TableState) {
         deduction = intersectionRemoval(table, candidate);
         if (isValid(deduction)) {
             console.log("[Intersection Removal] via candidate %d at cells %s affecting %s", candidate, formatCellsAsString(deduction.cause), formatCellsAsString(deduction.effect));
-            return;
+            return deduction;
         }
 
         deduction = XWing(table, candidate);
         if (isValid(deduction)) {
             console.log("[Classic X-Wing] via candidate %d at cells %s affecting %s", candidate, formatCellsAsString(deduction.cause), formatCellsAsString(deduction.effect));
-            return;
+            return deduction;
         }
 
         deduction = simpleColoring(table, candidate);
         if (isValid(deduction)) {
             console.log("[Simple Coloring] via candidate %d at cells %s affecting %s", candidate, formatCellsAsString(deduction.cause), formatCellsAsString(deduction.effect));
-            return;
+            return deduction;
         }
     }
 
     deduction = YWing(table);
     if (isValid(deduction)) {
         console.log("[Classic Y-Wing] via cells %s affecting %s", formatCellsAsString(deduction.cause), formatCellsAsString(deduction.effect));
-        return;
+        return deduction;
     }
 
     for (let candidate = 1; candidate <= 9; candidate ++) {
         deduction = Swordfish(table, candidate);
         if (isValid(deduction)) {
             console.log("[Swordish] via candidate %d at cells %s affecting %s", candidate, formatCellsAsString(deduction.cause), formatCellsAsString(deduction.effect));
-            return;
+            return deduction;
         }
     }
 
+    return deduction;
 }
 
 function formatCellsAsString(cells : Cell[]) : String {
