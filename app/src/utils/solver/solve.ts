@@ -116,13 +116,13 @@ function performDeductions(table : TableState) : Deduction {
         return deduction;
     }
 
-    for (let candidate = 1; candidate <= 9; candidate ++) {
-        deduction = XCycle(table, candidate);
-        if (isValid(deduction)) {
-            console.log("[X-Cycles] via candidate %d at cells %s affecting %s", candidate, formatCellsAsString(deduction.cause), formatCellsAsString(deduction.effect));
-            return deduction;
-        }
-    }
+    // for (let candidate = 1; candidate <= 9; candidate ++) {
+    //     deduction = XCycle(table, candidate);
+    //     if (isValid(deduction)) {
+    //         console.log("[X-Cycles] via candidate %d at cells %s affecting %s", candidate, formatCellsAsString(deduction.cause), formatCellsAsString(deduction.effect));
+    //         return deduction;
+    //     }
+    // }
 
     return deduction;
 }

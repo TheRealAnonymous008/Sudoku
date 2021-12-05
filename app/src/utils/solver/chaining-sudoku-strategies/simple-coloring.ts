@@ -1,18 +1,9 @@
+import { link } from "fs";
 import { Cell, isNeighbors } from "../../logic/Cell";
 import { Deduction } from "../../logic/Deduction";
 import { getRegionIntersection, getRegionDifference, getElementsWithCandidate } from "../../logic/Region";
 import { TableState } from "../../logic/rulesets/TableState";
-
-export type UnionFindNode<T> = {
-    parent : number, 
-    size : number,
-    value : T
-}
-
-export type Bipartition = {
-    first : Cell[],
-    second : Cell[]
-}
+import { addToGraph, CellGraph, CellNode, color, getTableEntry, makeLink, makeNode, partition } from "./cell-graphs";
 
 export default function simpleColoring (table :TableState, n : number) : Deduction{
     // STRATEGY:        Consider one candidate n.
@@ -39,21 +30,21 @@ export default function simpleColoring (table :TableState, n : number) : Deducti
         cause : [],
         effect : []
     }
-    const chains :Cell[][] = formAllChains(table, n);
+    const chain : CellGraph = formChain(table, n);
     let chainUnion : Cell[] = [];
     let success = false;
     // We then eliminate candidates based on the subrules for each chain
-    for (let i = 0; i < chains.length; i++) {
-        const b  = bipartition(chains[i]);
-        chainUnion = chainUnion.concat(chainUnion, chains[i]);
-        if (!success) {
-            deduction.effect = deduction.effect.concat(checkOffChain(table, b, n)); 
-            success = (deduction.effect.length !== 0);
-        }
-        if (!success) {
-            deduction.effect = deduction.effect.concat(checkOnChain(table, b, n)); 
-            success = (deduction.effect.length !== 0);
-        }
+    for (let i = 0; i < chain.nodes.length; i++) {
+        chainUnion = chainUnion.concat(getTableEntry(chain.nodes[i], table));
+    }
+    color(chain);
+    if (!success) {
+        deduction.effect = deduction.effect.concat(checkOffChain(table, chain, n)); 
+        success = (deduction.effect.length !== 0);
+    }
+    if (!success) {
+        deduction.effect = deduction.effect.concat(checkOnChain(table, chain, n)); 
+        success = (deduction.effect.length !== 0);
     }
 
     deduction.cause = chainUnion;
@@ -64,8 +55,19 @@ export default function simpleColoring (table :TableState, n : number) : Deducti
     return deduction;
 }
 
-export function checkOnChain(table : TableState, b : Bipartition, n : number) : Cell[] {
-    let effect : Cell[] = getRegionIntersection(b.first, b.second);
+export function checkOnChain(table : TableState, g : CellGraph,  n : number) : Cell[] {
+    const B= partition(g, 2);
+    let first : Cell[] = [];
+    let second : Cell[]= [];
+
+    for (let j = 0; j < B[0].length; j++){
+        first = first.concat (getTableEntry(B[0][j], table));
+    }
+    for (let j = 0; j < B[1].length; j++){
+        second = second.concat (getTableEntry(B[1][j], table));
+    }
+
+    let effect : Cell[] = getRegionIntersection(first, second);
 
     // We ensure that each entry that has two colors cannot be the candidate
     let success = false;
@@ -81,18 +83,30 @@ export function checkOnChain(table : TableState, b : Bipartition, n : number) : 
     return [];
 }
 
-export function checkOffChain(table : TableState , b : Bipartition, n : number) : Cell[] {
+export function checkOffChain(table : TableState , g : CellGraph, n : number) : Cell[] {
     // Remove all entries not in the chain and which see two colors
+    const B= partition(g, 2);
+    let first : Cell[] = [];
+    let second : Cell[]= [];
+
+    for (let j = 0; j < B[0].length; j++){
+        first = first.concat (getTableEntry(B[0][j], table));
+    }
+    
+    for (let j = 0; j < B[1].length; j++){
+        second = second.concat (getTableEntry(B[1][j], table));
+    }
+    
     let effect : Cell[]= [];
-    const inter : Cell[] = getRegionIntersection(b.first, b.second);
-    const firstPrime = getRegionDifference(b.first, inter);
-    const secondPrime = getRegionDifference(b.second, inter);
+    const inter : Cell[] = getRegionIntersection(first, second);
+    const firstPrime = getRegionDifference(first, inter);
+    const secondPrime = getRegionDifference(second, inter);
 
 
     for (let i = 0 ; i <table.cells.length; i++) {
         for (let j = 0; j < table.cells.length; j++){
             const cell = table.cells[i][j];
-            if (b.first.includes(cell) || b.second.includes(cell))
+            if (first.includes(cell) || second.includes(cell))
                 continue;
 
             for (let x = 0; x < firstPrime.length; x++){
@@ -121,47 +135,10 @@ export function checkOffChain(table : TableState , b : Bipartition, n : number) 
     return [];
 }
 
-export function bipartition(cells : Cell[]) : Bipartition{
-    const B : Bipartition = {
-        first : [],
-        second : []
-    }
-    // We partition each element in the chain into two colors.
-
-    B.first.push(cells[0]);
-
-    const queue = [];
-    queue.push(0);
-
-    while (queue.length > 0) {
-        let c = queue[0];
-        queue.shift();
-
-        for (let v = 0; v < cells.length; v++){
-            if (isNeighbors(cells[v], cells[c]) !== 0) {
-                if (!B.first.includes(cells[v]) && !B.second.includes(cells[v]) && !queue.includes(v)) {
-                    queue.push(v);
-                }
-                if (B.first.includes(cells[c]) && !B.second.includes(cells[c]) && !B.second.includes(cells[v])) {
-                    B.second.push(cells[v]);
-                }
-                else if (B.second.includes(cells[c]) && !B.first.includes(cells[c]) && !B.first.includes(cells[v])){
-                    B.first.push(cells[v]);
-                }
-            }
-        }
-    }
-
-    return B;
-}
-
-export function formAllChains (table : TableState, n : number) : Cell[][] {
-    const chains :Cell[][] = [];
-    // ALGORITHM   :       Perform Union-Find on the set of cells. This produces a list of disjoint sets
-    //                     Which can then be traversed and colored via BFS
-    let ufnodes : UnionFindNode<Cell>[] = [] ;
-    let pairs : number[][] = [];
-    let nodes : Cell[]= []
+export function formChain (table : TableState, n : number) : CellGraph {
+    let graph : CellGraph = {
+        nodes : []
+    } 
 
     for (let i = 0; i < table.regions.length; i ++) {
         const cands = getElementsWithCandidate(table.regions[i].cells, n);
@@ -169,76 +146,15 @@ export function formAllChains (table : TableState, n : number) : Cell[][] {
         // We also build the graph here so that the individual links in the graph are properly made.
         if (cands.length === 2) {
             if (isNeighbors(cands[0], cands[1]) === 1){
-                if (!nodes.includes(cands[0]))
-                    nodes.push(cands[0]);
-                if (!nodes.includes(cands[1]))
-                    nodes.push(cands[1]);
-                
-                pairs.push([nodes.indexOf(cands[0]), nodes.indexOf(cands[1])]);
+                let c = makeNode([cands[0]]);
+                let d = makeNode([cands[1]]);
+                addToGraph(graph, c);
+                addToGraph(graph, d);
+                makeLink(c, d, graph);
             } 
         }
     }
 
-    for (let i = 0; i < nodes.length; i++) {
-        ufnodes.push ( {
-            parent : i, 
-            size : 1,
-            value : nodes[i]
-        });
-    }
-
-    
-    for (let i =0 ; i < pairs.length; i++){
-        union<Cell>(pairs[i][0], pairs[i][1], ufnodes);
-    }
-
-    // We then build each chain as a collection of subgraphs.
-    // First we add all the root nodes
-    for (let i = 0; i < ufnodes.length; i++) {
-        if (ufnodes[i].parent === i){
-            chains.push([ufnodes[i].value]);
-        }
-    }
-
-    // We then connect each entry to the corresponding chain
-    for (let i = 0; i < ufnodes.length; i++) {
-        if (ufnodes[i].parent !== i) {
-            for (let j = 0; j < chains.length; j ++) {
-                let c : Cell = ufnodes[find(i, ufnodes)].value;
-                if (c  === chains[j][0]) {
-                    chains[j].push(ufnodes[i].value)
-                    break;
-                }
-            }
-        }
-    }
-
-    return chains;
-}
-
-export function find<T>(index : number, ufnodes : UnionFindNode<T>[]) : number {
-    if (ufnodes[index].parent !== index) {
-        ufnodes[index].parent = find<T>(ufnodes[index].parent, ufnodes);
-        return ufnodes[index].parent;
-    }
-    return index;
-};
-
-export function union<T>(x : number, y : number, ufnodes : UnionFindNode<T>[]) {
-    x = find<T>(x, ufnodes);
-    y = find<T>(y, ufnodes);
-
-    if (x === y) {
-        return;
-    }
-
-    if (ufnodes[x].size < ufnodes[y].size) {
-        const temp = x;
-        x = y;
-        y = temp;
-    }
-
-    ufnodes[y].parent = x;
-    ufnodes[x].size += ufnodes[y].size
+    return graph;
 }
 
